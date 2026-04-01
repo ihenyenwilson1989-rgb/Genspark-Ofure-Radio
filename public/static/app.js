@@ -70,7 +70,94 @@ function saveState(key) {
     rss:      () => localStorage.setItem('ofure_rss',      JSON.stringify(State.rssSettings))
   };
   if (map[key]) map[key]();
+  // Any time streams change, refresh the home page Active Streams pane
+  if (key === 'streams') renderHomeStreams();
 }
+
+// ─── HOME: LIVE ACTIVE STREAMS (syncs with Stream Manager) ────────────────
+function renderHomeStreams() {
+  const container = document.getElementById('homeStreamsList');
+  if (!container) return; // not on home page — silently skip
+
+  // Always read freshest data from State (which is already in sync with localStorage)
+  const streams = State.streams;
+
+  if (!streams || streams.length === 0) {
+    container.innerHTML = `
+      <div class="col-span-3 text-center py-16">
+        <div class="w-16 h-16 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-4">
+          <i class="fas fa-radio text-orange-400 text-2xl"></i>
+        </div>
+        <p class="text-neutral-400 text-lg font-semibold mb-2">No streams configured yet</p>
+        <p class="text-neutral-600 text-sm">Add streams in <a href="/admin" class="text-orange-400 hover:text-orange-300">Admin Studio → Stream Manager</a></p>
+      </div>`;
+    return;
+  }
+
+  // Status helpers
+  const statusBadge = s =>
+    s.status === 'live'
+      ? '<span class="text-xs font-semibold px-3 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">● LIVE</span>'
+      : s.status === 'scheduled'
+        ? '<span class="text-xs font-semibold px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">⏰ SCHEDULED</span>'
+        : '<span class="text-xs font-semibold px-3 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/30">○ OFFLINE</span>';
+
+  const listenBtn = s => {
+    const hasUrl  = s.url && s.url !== '' && s.url !== '#';
+    const canPlay = s.status === 'live' && hasUrl;
+    return canPlay
+      ? `<button onclick="playStream('${s.url.replace(/'/g,"\\'")}','${_escHtml(s.name).replace(/'/g,"\\'")}')"\
+           class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors">\
+           <i class="fas fa-play mr-1"></i>Listen</button>`
+      : `<button disabled\
+           class="bg-white/10 text-neutral-500 px-4 py-2 rounded-full text-sm font-semibold cursor-not-allowed" title="${s.status === 'offline' ? 'Stream is offline' : s.url ? 'Coming soon' : 'No stream URL configured'}">\
+           <i class="fas fa-${s.status === 'offline' ? 'pause' : 'clock'} mr-1"></i>${s.status === 'offline' ? 'Offline' : 'Soon'}</button>`;
+  };
+
+  container.innerHTML = streams.map(s => `
+    <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-orange-500/30 transition-all duration-300 group" id="homeStream-${s.id}">
+      <div class="flex items-start justify-between mb-4">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-purple-600/20 flex items-center justify-center group-hover:scale-105 transition-transform">
+          <i class="fas fa-radio text-orange-400 text-xl"></i>
+        </div>
+        <div class="flex flex-col items-end gap-1.5">
+          ${statusBadge(s)}
+          <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">
+            <i class="fas fa-signal mr-1"></i>${s.bitrate || 128} kbps
+          </span>
+        </div>
+      </div>
+      <h3 class="text-white font-bold text-lg mb-1">${_escHtml(s.name)}</h3>
+      <p class="text-neutral-400 text-sm mb-1">${_escHtml(s.genre)}</p>
+      ${s.status === 'live' ? `<p class="text-green-400 text-xs mb-4"><i class="fas fa-users mr-1"></i>${s.listeners || 0} listeners</p>` : '<div class="mb-4"></div>'}
+      <div class="flex items-center justify-between">
+        <span class="text-neutral-600 text-xs truncate max-w-[120px]" title="${_escHtml(s.url || '')}">
+          <i class="fas fa-link mr-1"></i>${s.url ? s.url.replace('https://','').split('/')[0] : 'No URL set'}
+        </span>
+        ${listenBtn(s)}
+      </div>
+    </div>`).join('');
+
+  // Update footer counters
+  const liveCount  = streams.filter(s => s.status === 'live').length;
+  const total      = streams.length;
+  const footer     = document.getElementById('homeStreamsFooter');
+  const liveEl     = document.getElementById('homeStreamLiveCount');
+  const totalEl    = document.getElementById('homeStreamTotalCount');
+  if (footer)  footer.classList.remove('hidden');
+  if (liveEl)  liveEl.textContent  = liveCount + ' live stream' + (liveCount !== 1 ? 's' : '');
+  if (totalEl) totalEl.textContent = ' of ' + total + ' total';
+}
+
+// Cross-tab sync: when Stream Manager updates streams in another tab, refresh home pane
+window.addEventListener('storage', function(e) {
+  if (e.key === 'ofure_streams' && e.newValue) {
+    try {
+      State.streams = JSON.parse(e.newValue);
+      renderHomeStreams();
+    } catch(err) { /* ignore */ }
+  }
+});
 
 // ─── UTILITIES ────────────────────────────────────────
 function $(id)    { return document.getElementById(id); }
@@ -232,6 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initAdmin();
   updateSocialLinks();
+  // Hydrate the home page Active Streams pane from localStorage / State
+  renderHomeStreams();
 });
 
 // ─── RADIO PLAYER ──────────────────────────────────────
@@ -710,6 +799,8 @@ function renderStreams() {
   const lc = $('liveStreamCount');   if (lc) lc.textContent = liveCount;
   const tc = $('totalStreamCount');  if (tc) tc.textContent = State.streams.length;
   const tl = $('totalListenerCount');if (tl) tl.textContent = totalListeners;
+  // Keep home page Active Streams pane in sync whenever admin renders streams
+  renderHomeStreams();
 
   list.innerHTML = State.streams.map(s => `
     <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 hover:border-orange-500/20 transition-all stream-card" data-id="${s.id}" id="stream-card-${s.id}">

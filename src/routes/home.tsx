@@ -289,33 +289,54 @@ export function homePage(): string {
         <p class="text-neutral-400 mt-3 max-w-xl mx-auto">Tune in to our live internet radio broadcasts from anywhere in the world</p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        ${[
-          { name: 'OFURE RADIO MAIN', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Afrobeats • R&B • Gospel', quality: '128kbps', status: 'live' },
-          { name: 'OFURE GOSPEL STATION', url: '#', genre: 'Gospel • Inspirational • Worship', quality: '128kbps', status: 'live' },
-          { name: 'OFURE URBAN BEATS', url: '#', genre: 'Hip-Hop • Trap • Urban', quality: '128kbps', status: 'scheduled' },
-        ].map((stream, i) => `
-        <div class="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-orange-500/30 transition-all duration-300">
+      <!-- Live streams grid — populated dynamically by app.js renderHomeStreams() -->
+      <!-- Syncs automatically with Admin → Stream Manager (localStorage) -->
+      <div id="homeStreamsList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Skeleton placeholders shown until JS hydrates -->
+        <div class="home-stream-skeleton bg-white/5 border border-white/10 rounded-2xl p-6 animate-pulse">
           <div class="flex items-start justify-between mb-4">
-            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500/20 to-purple-600/20 flex items-center justify-center">
-              <i class="fas fa-radio text-orange-400 text-xl"></i>
-            </div>
-            <span class="text-xs font-semibold px-3 py-1 rounded-full ${stream.status === 'live' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}">
-              ${stream.status === 'live' ? '● LIVE' : '⏰ SCHEDULED'}
-            </span>
+            <div class="w-12 h-12 rounded-xl bg-white/10"></div>
+            <div class="w-16 h-6 rounded-full bg-white/10"></div>
           </div>
-          <h3 class="text-white font-bold text-lg mb-1">${stream.name}</h3>
-          <p class="text-neutral-400 text-sm mb-4">${stream.genre}</p>
+          <div class="h-5 bg-white/10 rounded w-3/4 mb-2"></div>
+          <div class="h-4 bg-white/10 rounded w-1/2 mb-6"></div>
           <div class="flex items-center justify-between">
-            <span class="text-neutral-500 text-xs"><i class="fas fa-signal mr-1"></i>${stream.quality}</span>
-            <button onclick="playStream('${stream.url}', '${stream.name}')" 
-              class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors ${stream.status !== 'live' ? 'opacity-50 cursor-not-allowed' : ''}"
-              ${stream.status !== 'live' ? 'disabled' : ''}>
-              <i class="fas fa-play mr-1"></i>Listen
-            </button>
+            <div class="h-4 bg-white/10 rounded w-1/4"></div>
+            <div class="w-24 h-9 rounded-full bg-white/10"></div>
           </div>
         </div>
-        `).join('')}
+        <div class="home-stream-skeleton bg-white/5 border border-white/10 rounded-2xl p-6 animate-pulse">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-white/10"></div>
+            <div class="w-16 h-6 rounded-full bg-white/10"></div>
+          </div>
+          <div class="h-5 bg-white/10 rounded w-3/4 mb-2"></div>
+          <div class="h-4 bg-white/10 rounded w-1/2 mb-6"></div>
+          <div class="flex items-center justify-between">
+            <div class="h-4 bg-white/10 rounded w-1/4"></div>
+            <div class="w-24 h-9 rounded-full bg-white/10"></div>
+          </div>
+        </div>
+        <div class="home-stream-skeleton bg-white/5 border border-white/10 rounded-2xl p-6 animate-pulse">
+          <div class="flex items-start justify-between mb-4">
+            <div class="w-12 h-12 rounded-xl bg-white/10"></div>
+            <div class="w-16 h-6 rounded-full bg-white/10"></div>
+          </div>
+          <div class="h-5 bg-white/10 rounded w-3/4 mb-2"></div>
+          <div class="h-4 bg-white/10 rounded w-1/2 mb-6"></div>
+          <div class="flex items-center justify-between">
+            <div class="h-4 bg-white/10 rounded w-1/4"></div>
+            <div class="w-24 h-9 rounded-full bg-white/10"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Live stream count badge — updated by renderHomeStreams() -->
+      <div id="homeStreamsFooter" class="mt-8 text-center hidden">
+        <p class="text-neutral-600 text-sm">
+          <span id="homeStreamLiveCount" class="text-green-400 font-semibold"></span>
+          <span id="homeStreamTotalCount"></span>
+          — managed via <a href="/admin" class="text-orange-400 hover:text-orange-300 transition-colors">Admin Studio → Stream Manager</a>
+        </p>
       </div>
     </div>
   </section>
