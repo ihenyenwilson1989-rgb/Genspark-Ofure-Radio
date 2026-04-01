@@ -204,26 +204,25 @@ export function homePage(): string {
         </div>
         <div class="relative">
           <div class="bg-gradient-to-br from-orange-500/20 to-purple-600/20 rounded-3xl p-8 border border-white/10">
-            <!-- DJ Lineup -->
+            <!-- DJ Lineup — populated dynamically from Show Schedule Manager -->
             <h3 class="text-white font-bold text-xl mb-6 font-display">Our DJ Family</h3>
-            <div class="space-y-4">
-              ${[
-                { name: 'DJ Alex', show: 'Morning Vibes', time: '6AM - 10AM', emoji: '🌅' },
-                { name: 'DJ Luna', show: 'Afternoon Mix', time: '12PM - 4PM', emoji: '☀️' },
-                { name: 'DJ Marcus', show: 'Evening Drive', time: '4PM - 8PM', emoji: '🌆' },
-                { name: 'DJ Sarah', show: 'Night Frequency', time: '8PM - 12AM', emoji: '🌙' },
-              ].map(dj => `
-              <div class="flex items-center gap-4 bg-white/5 rounded-xl p-3 hover:bg-white/10 transition-colors">
-                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center text-xl">
-                  ${dj.emoji}
-                </div>
-                <div class="flex-1">
-                  <div class="text-white font-semibold">${dj.name}</div>
-                  <div class="text-neutral-400 text-sm">${dj.show}</div>
-                </div>
-                <div class="text-orange-400 text-xs font-medium">${dj.time}</div>
+            <div class="space-y-3" id="homeDJList">
+              <!-- Skeleton placeholders until JS hydrates -->
+              <div class="flex items-center gap-4 bg-white/5 rounded-xl p-3 animate-pulse">
+                <div class="w-12 h-12 rounded-full bg-white/10 flex-shrink-0"></div>
+                <div class="flex-1"><div class="h-4 bg-white/10 rounded w-2/3 mb-2"></div><div class="h-3 bg-white/10 rounded w-1/2"></div></div>
+                <div class="w-20 h-4 bg-white/10 rounded"></div>
               </div>
-              `).join('')}
+              <div class="flex items-center gap-4 bg-white/5 rounded-xl p-3 animate-pulse">
+                <div class="w-12 h-12 rounded-full bg-white/10 flex-shrink-0"></div>
+                <div class="flex-1"><div class="h-4 bg-white/10 rounded w-2/3 mb-2"></div><div class="h-3 bg-white/10 rounded w-1/2"></div></div>
+                <div class="w-20 h-4 bg-white/10 rounded"></div>
+              </div>
+              <div class="flex items-center gap-4 bg-white/5 rounded-xl p-3 animate-pulse">
+                <div class="w-12 h-12 rounded-full bg-white/10 flex-shrink-0"></div>
+                <div class="flex-1"><div class="h-4 bg-white/10 rounded w-2/3 mb-2"></div><div class="h-3 bg-white/10 rounded w-1/2"></div></div>
+                <div class="w-20 h-4 bg-white/10 rounded"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -244,8 +243,9 @@ export function homePage(): string {
         <p class="text-neutral-400 mt-3 max-w-xl mx-auto">Never miss your favorite show — tune in at the right time</p>
       </div>
 
+      <!-- Show Schedule table — synced dynamically from Admin → Show Schedule Manager -->
       <div class="overflow-x-auto">
-        <table class="w-full">
+        <table class="w-full" id="homeScheduleTable">
           <thead>
             <tr class="border-b border-white/10">
               <th class="text-left py-3 px-4 text-neutral-400 text-sm font-medium">Time</th>
@@ -253,30 +253,20 @@ export function homePage(): string {
               <th class="text-left py-3 px-4 text-neutral-400 text-sm font-medium">Host</th>
               <th class="text-left py-3 px-4 text-neutral-400 text-sm font-medium hidden md:table-cell">Genre</th>
               <th class="text-left py-3 px-4 text-neutral-400 text-sm font-medium hidden lg:table-cell">Days</th>
+              <th class="text-left py-3 px-4 text-neutral-400 text-sm font-medium">Status</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-white/5">
-            ${[
-              { time: '6:00 AM', show: 'Morning Vibes', host: 'DJ Alex', genre: 'Afrobeats / Gospel', days: 'Mon - Fri', active: true },
-              { time: '9:00 AM', show: 'The Word & Music Hour', host: 'Pastor Mike', genre: 'Gospel / Inspirational', days: 'Mon - Fri', active: false },
-              { time: '12:00 PM', show: 'Afternoon Mix', host: 'DJ Luna', genre: 'R&B / Hip-Hop', days: 'Everyday', active: false },
-              { time: '2:00 PM', show: 'Throwback Classics', host: 'DJ Rex', genre: 'Old School / Soul', days: 'Mon, Wed, Fri', active: false },
-              { time: '4:00 PM', show: 'Evening Drive', host: 'DJ Marcus', genre: 'Afrobeats / Urban', days: 'Everyday', active: false },
-              { time: '7:00 PM', show: 'Cultural Vibes', host: 'Mama Bisi', genre: 'Highlife / Jùjú', days: 'Tue, Thu, Sat', active: false },
-              { time: '9:00 PM', show: 'Night Frequency', host: 'DJ Sarah', genre: 'Chill / Neo-Soul', days: 'Everyday', active: false },
-              { time: '11:00 PM', show: 'Late Night Sessions', host: 'DJ Maya', genre: 'Electronic / Deep House', days: 'Fri - Sat', active: false },
-            ].map(row => `
-            <tr class="hover:bg-white/3 transition-colors ${row.active ? 'bg-orange-500/5' : ''}">
-              <td class="py-4 px-4">
-                <span class="text-white font-semibold text-sm">${row.time}</span>
-                ${row.active ? '<span class="ml-2 text-xs text-green-400 bg-green-500/20 px-2 py-0.5 rounded-full">LIVE</span>' : ''}
-              </td>
-              <td class="py-4 px-4 text-white font-medium">${row.show}</td>
-              <td class="py-4 px-4 text-neutral-400 text-sm">${row.host}</td>
-              <td class="py-4 px-4 text-neutral-500 text-sm hidden md:table-cell">${row.genre}</td>
-              <td class="py-4 px-4 text-neutral-500 text-sm hidden lg:table-cell">${row.days}</td>
-            </tr>
-            `).join('')}
+          <tbody id="homeScheduleBody" class="divide-y divide-white/5">
+            <!-- Skeleton rows while JS loads -->
+            ${[1,2,3,4].map(() => `
+            <tr class="animate-pulse">
+              <td class="py-4 px-4"><div class="h-4 bg-white/10 rounded w-20"></div></td>
+              <td class="py-4 px-4"><div class="h-4 bg-white/10 rounded w-32"></div></td>
+              <td class="py-4 px-4"><div class="h-4 bg-white/10 rounded w-24"></div></td>
+              <td class="py-4 px-4 hidden md:table-cell"><div class="h-4 bg-white/10 rounded w-28"></div></td>
+              <td class="py-4 px-4 hidden lg:table-cell"><div class="h-4 bg-white/10 rounded w-20"></div></td>
+              <td class="py-4 px-4"><div class="h-6 bg-white/10 rounded-full w-16"></div></td>
+            </tr>`).join('')}
           </tbody>
         </table>
       </div>
@@ -492,9 +482,10 @@ export function homePage(): string {
         <div>
           <h4 class="text-white font-semibold mb-4">Newsletter</h4>
           <p class="text-neutral-400 text-sm mb-3">Subscribe for show updates and exclusive content.</p>
-          <form onsubmit="handleNewsletter(event)" class="flex gap-2">
-            <input type="email" required class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-neutral-500 focus:outline-none focus:border-orange-500" placeholder="Enter your email">
-            <button type="submit" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition-colors">
+          <form onsubmit="handleNewsletter(event)" id="newsletterForm" class="flex gap-2">
+            <input type="email" id="newsletterEmail" name="newsletterEmail" required
+              class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-neutral-500 focus:outline-none focus:border-orange-500" placeholder="Enter your email">
+            <button type="submit" id="newsletterBtn" class="bg-orange-500 text-white px-4 py-2 rounded-lg text-sm hover:bg-orange-600 transition-colors">
               <i class="fas fa-arrow-right"></i>
             </button>
           </form>

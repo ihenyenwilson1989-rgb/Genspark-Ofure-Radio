@@ -75,11 +75,13 @@ function saveState(key) {
   };
   if (map[key]) map[key]();
   // Any time streams change, refresh Home Active Streams pane AND Live Now panel
-  if (key === 'streams') { renderHomeStreams(); initLiveNow(); }
+  if (key === 'streams')  { renderHomeStreams(); initLiveNow(); }
+  // Any time schedule changes, refresh Home Schedule + DJ Family pane
+  if (key === 'schedule') { renderHomeSchedule(); renderHomeDJFamily(); }
   // Any time settings change, sync the Email Us pane on home page
   if (key === 'settings') { syncEmailUs(); }
   // Any time inbox changes, update nav badge
-  if (key === 'inbox') { _updateInboxBadge(); }
+  if (key === 'inbox')    { _updateInboxBadge(); }
 }
 
 // ─── HOME: LIVE ACTIVE STREAMS (syncs with Stream Manager) ────────────────
@@ -166,6 +168,13 @@ window.addEventListener('storage', function(e) {
       initLiveNow();   // also refresh Live Now panel
     } catch(err) { /* ignore */ }
   }
+  if (e.key === 'ofure_schedule' && e.newValue) {
+    try {
+      State.schedule = JSON.parse(e.newValue);
+      renderHomeSchedule();
+      renderHomeDJFamily();
+    } catch(err) { /* ignore */ }
+  }
   if (e.key === 'ofure_settings' && e.newValue) {
     try {
       State.settings = JSON.parse(e.newValue);
@@ -180,6 +189,112 @@ window.addEventListener('storage', function(e) {
     } catch(err) { /* ignore */ }
   }
 });
+
+// ─── HOME: SHOW SCHEDULE (syncs with Show Schedule Manager) ─────────────────
+// Called on DOMContentLoaded and whenever State.schedule changes.
+// Renders into <tbody id="homeScheduleBody"> on the home page.
+function renderHomeSchedule() {
+  const tbody = document.getElementById('homeScheduleBody');
+  if (!tbody) return; // not on home page
+
+  const schedule = State.schedule;
+  if (!schedule || schedule.length === 0) {
+    tbody.innerHTML = `
+      <tr><td colspan="6" class="py-10 text-center text-neutral-500">
+        <i class="fas fa-calendar-alt text-2xl mb-2 block opacity-30"></i>
+        No shows scheduled yet — check back soon!
+      </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = schedule.map(s => {
+    const isLive = !!s.active;
+    return `
+    <tr class="hover:bg-white/3 transition-all duration-200 ${isLive ? 'bg-green-500/5 border-l-2 border-green-500/60' : ''}">
+      <td class="py-4 px-4">
+        <span class="text-white font-semibold text-sm">${_escHtml(s.time)}</span>
+      </td>
+      <td class="py-4 px-4">
+        <span class="text-white font-medium">${_escHtml(s.show)}</span>
+      </td>
+      <td class="py-4 px-4 text-neutral-400 text-sm">${_escHtml(s.host)}</td>
+      <td class="py-4 px-4 text-neutral-500 text-sm hidden md:table-cell">${_escHtml(s.genre || '')}</td>
+      <td class="py-4 px-4 text-neutral-500 text-sm hidden lg:table-cell">${_escHtml(s.days || '')}</td>
+      <td class="py-4 px-4">
+        ${isLive
+          ? `<span class="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 animate-pulse">
+               <span class="w-1.5 h-1.5 rounded-full bg-green-400 inline-block"></span>LIVE
+             </span>`
+          : `<span class="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full bg-white/5 text-neutral-500 border border-white/10">
+               <i class="fas fa-clock text-[10px]"></i>Scheduled
+             </span>`
+        }
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── HOME: DJ FAMILY (syncs with Show Schedule Manager) ──────────────────────
+// Builds DJ cards from unique hosts in State.schedule.
+// Renders into <div id="homeDJList"> on the home page.
+const _DJ_EMOJIS  = ['🌅','☀️','🌆','🌙','🎵','🎙️','🎧','⭐','🔥','🎤'];
+const _DJ_COLORS  = ['from-orange-500 to-purple-600','from-purple-500 to-pink-600',
+                     'from-blue-500 to-cyan-500','from-green-500 to-teal-500',
+                     'from-yellow-500 to-orange-500','from-pink-500 to-rose-600'];
+
+function renderHomeDJFamily() {
+  const container = document.getElementById('homeDJList');
+  if (!container) return; // not on home page
+
+  const schedule = State.schedule;
+  if (!schedule || schedule.length === 0) {
+    container.innerHTML = `<p class="text-neutral-500 text-sm text-center py-4">No DJ lineup yet.</p>`;
+    return;
+  }
+
+  // Build unique DJ map: host → { show, time, active, emoji, color }
+  const djMap = {};
+  schedule.forEach((s, i) => {
+    if (!s.host) return;
+    const key = s.host.trim();
+    if (!djMap[key]) {
+      djMap[key] = {
+        name:   key,
+        show:   s.show,
+        time:   s.time,
+        active: !!s.active,
+        emoji:  _DJ_EMOJIS[i % _DJ_EMOJIS.length],
+        color:  _DJ_COLORS[i % _DJ_COLORS.length]
+      };
+    } else if (s.active) {
+      // If host has an active show, promote it
+      djMap[key].active = true;
+      djMap[key].show   = s.show;
+      djMap[key].time   = s.time;
+    }
+  });
+
+  const djs = Object.values(djMap);
+  if (djs.length === 0) {
+    container.innerHTML = `<p class="text-neutral-500 text-sm text-center py-4">No DJ lineup yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = djs.map(dj => `
+    <div class="flex items-center gap-4 bg-white/5 rounded-xl p-3 hover:bg-white/10 transition-colors ${dj.active ? 'ring-1 ring-green-500/40' : ''}">
+      <div class="w-12 h-12 rounded-full bg-gradient-to-br ${dj.color} flex items-center justify-center text-xl flex-shrink-0">
+        ${dj.emoji}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <span class="text-white font-semibold truncate">${_escHtml(dj.name)}</span>
+          ${dj.active ? '<span class="text-xs font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30 flex-shrink-0">● ON AIR</span>' : ''}
+        </div>
+        <div class="text-neutral-400 text-sm truncate">${_escHtml(dj.show)}</div>
+      </div>
+      <div class="text-orange-400 text-xs font-medium flex-shrink-0">${_escHtml(dj.time)}</div>
+    </div>`).join('');
+}
 
 // ─── LIVE NOW PANEL — syncs with Stream Manager ───────────────────────────
 // Picks the first LIVE stream with a valid URL from State.streams and wires
@@ -447,6 +562,9 @@ document.addEventListener('DOMContentLoaded', () => {
   renderHomeStreams();
   // Hydrate Live Now panel + wire radio player to first live stream
   initLiveNow();
+  // Hydrate Show Schedule + DJ Family from State
+  renderHomeSchedule();
+  renderHomeDJFamily();
   // Render inbox if on admin page
   renderInbox();
   _updateInboxBadge();
@@ -634,12 +752,34 @@ function handleContactForm(e) {
 
 function handleNewsletter(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
+  const form     = e.target;
+  const emailEl  = form.querySelector('#newsletterEmail') || form.querySelector('input[type="email"]');
+  const email    = emailEl ? emailEl.value.trim() : '';
+  const btn      = form.querySelector('button[type="submit"]');
+
+  if (!email) { showToast('Please enter your email address.', 'warning'); return; }
+
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
   setTimeout(() => {
+    // Save newsletter subscription to inbox
+    const sub = {
+      id:      Date.now(),
+      name:    'Newsletter Subscriber',
+      email:   email,
+      subject: 'Newsletter Subscription',
+      message: email + ' subscribed to show updates & exclusive content.',
+      status:  'pending',
+      reply:   '',
+      date:    new Date().toISOString()
+    };
+    State.inbox.unshift(sub);
+    saveState('inbox');
+    renderInbox();
+
     showToast('Subscribed! Welcome to the OFURE RADIO family! 🎉', 'success');
-    e.target.reset();
+    form.reset();
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
   }, 1000);
