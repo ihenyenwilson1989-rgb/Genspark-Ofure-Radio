@@ -96,35 +96,42 @@ export function homePage(): string {
         Your premier destination for the best in Afrobeats, R&B, Hip-Hop, and Gospel. Tune in to great music, exciting shows, and news that matters to you.
       </p>
 
-      <!-- Stream Embed -->
+      <!-- Stream Embed — hydrated by initLiveNow() in app.js -->
       <div class="max-w-2xl mx-auto bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-10">
         <div class="flex items-center gap-4 mb-4">
           <div class="flex-1">
             <div class="flex items-center gap-3 mb-1">
-              <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
-              <span class="text-green-400 text-sm font-semibold">LIVE NOW</span>
+              <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse" id="liveNowDot"></div>
+              <span id="liveNowBadge" class="text-green-400 text-sm font-semibold">LIVE NOW</span>
             </div>
-            <p class="text-white font-bold text-lg">OFURE RADIO LIVE STREAM</p>
-            <p class="text-neutral-400 text-sm">Afrobeats • R&B • Gospel • Hip-Hop</p>
+            <!-- Stream name + genre updated dynamically from Stream Manager -->
+            <p class="text-white font-bold text-lg" id="liveNowName">OFURE RADIO LIVE STREAM</p>
+            <p class="text-neutral-400 text-sm" id="liveNowGenre">Afrobeats • R&B • Gospel • Hip-Hop</p>
           </div>
           <button id="playBtn" onclick="togglePlay()" class="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center hover:scale-105 transition-transform shadow-lg shadow-orange-500/25">
             <i id="playIcon" class="fas fa-play text-white text-lg ml-1"></i>
           </button>
         </div>
-        <!-- Radio Player -->
-        <audio id="radioPlayer" src="https://stream.zeno.fm/f3wvbbqmdg8uv" preload="none"></audio>
+        <!-- Radio Player — src set dynamically by initLiveNow() -->
+        <audio id="radioPlayer" preload="none"></audio>
         <!-- Visualizer -->
         <div class="flex items-end gap-1 h-8 justify-center" id="visualizer">
           ${Array.from({length: 20}, (_, i) => `<div class="visualizer-bar w-1.5 bg-gradient-to-t from-orange-500 to-purple-500 rounded-full" style="height: ${Math.random() * 28 + 4}px"></div>`).join('')}
         </div>
         <div class="flex items-center justify-between mt-3">
-          <span class="text-neutral-500 text-xs">stream.zeno.fm</span>
+          <!-- Stream source domain — updated dynamically -->
+          <span class="text-neutral-500 text-xs" id="liveNowDomain">Loading stream…</span>
           <div class="flex items-center gap-3">
             <button onclick="setVolume(0.3)" class="text-neutral-400 hover:text-white text-xs transition-colors">30%</button>
             <button onclick="setVolume(0.6)" class="text-neutral-400 hover:text-white text-xs transition-colors">60%</button>
             <button onclick="setVolume(1)" class="text-neutral-400 hover:text-white text-xs transition-colors">Max</button>
             <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="0.8" class="w-20 accent-orange-500" onchange="setVolume(this.value)">
           </div>
+        </div>
+        <!-- Stream selector: switch between live streams without leaving the hero -->
+        <div id="liveNowSelector" class="mt-4 hidden">
+          <p class="text-neutral-600 text-xs mb-2 uppercase tracking-wider font-semibold">Switch stream</p>
+          <div id="liveNowSwitcher" class="flex flex-wrap gap-2"></div>
         </div>
       </div>
 

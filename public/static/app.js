@@ -70,8 +70,8 @@ function saveState(key) {
     rss:      () => localStorage.setItem('ofure_rss',      JSON.stringify(State.rssSettings))
   };
   if (map[key]) map[key]();
-  // Any time streams change, refresh the home page Active Streams pane
-  if (key === 'streams') renderHomeStreams();
+  // Any time streams change, refresh Home Active Streams pane AND Live Now panel
+  if (key === 'streams') { renderHomeStreams(); initLiveNow(); }
 }
 
 // ─── HOME: LIVE ACTIVE STREAMS (syncs with Stream Manager) ────────────────
@@ -155,9 +155,110 @@ window.addEventListener('storage', function(e) {
     try {
       State.streams = JSON.parse(e.newValue);
       renderHomeStreams();
+      initLiveNow();   // also refresh Live Now panel
     } catch(err) { /* ignore */ }
   }
 });
+
+// ─── LIVE NOW PANEL — syncs with Stream Manager ───────────────────────────
+// Picks the first LIVE stream with a valid URL from State.streams and wires
+// it into the hero "Live Now" block. Called on DOMContentLoaded and whenever
+// streams change (saveState / cross-tab).
+function initLiveNow() {
+  // Find the first LIVE stream with a real URL
+  const liveStreams = State.streams.filter(s =>
+    s.status === 'live' && s.url && s.url.trim() !== '' && s.url !== '#'
+  );
+  const primary = liveStreams[0] || null;
+
+  // ── Update panel info text ────────────────────────────────────────────
+  const nameEl   = document.getElementById('liveNowName');
+  const genreEl  = document.getElementById('liveNowGenre');
+  const domainEl = document.getElementById('liveNowDomain');
+  const badgeEl  = document.getElementById('liveNowBadge');
+  const dotEl    = document.getElementById('liveNowDot');
+
+  if (primary) {
+    if (nameEl)   nameEl.textContent  = primary.name;
+    if (genreEl)  genreEl.textContent = primary.genre || 'Internet Radio';
+    if (domainEl) {
+      try { domainEl.textContent = new URL(primary.url).hostname; }
+      catch(e) { domainEl.textContent = primary.url.split('/')[2] || primary.url; }
+    }
+    if (badgeEl) { badgeEl.textContent = 'LIVE NOW'; badgeEl.className = 'text-green-400 text-sm font-semibold'; }
+    if (dotEl)   { dotEl.className = 'w-3 h-3 rounded-full bg-green-500 animate-pulse'; }
+  } else {
+    // No live stream available
+    if (nameEl)   nameEl.textContent  = 'No live stream available';
+    if (genreEl)  genreEl.textContent = 'Add a live stream in Admin → Stream Manager';
+    if (domainEl) domainEl.textContent = '—';
+    if (badgeEl) { badgeEl.textContent = 'OFFLINE'; badgeEl.className = 'text-red-400 text-sm font-semibold'; }
+    if (dotEl)   { dotEl.className = 'w-3 h-3 rounded-full bg-red-500'; }
+  }
+
+  // ── Wire up the main radio player ────────────────────────────────────
+  const radioPlayer = document.getElementById('radioPlayer');
+  if (radioPlayer && primary) {
+    // Only update src if not currently playing (don't interrupt)
+    if (!State.isPlaying) {
+      radioPlayer.src = primary.url;
+      State.currentStreamUrl  = primary.url;
+      State.currentStreamName = primary.name;
+    } else if (State.currentStreamUrl !== primary.url) {
+      // Stream URL changed while playing — update State for next play
+      // (don't interrupt current playback)
+      State.currentStreamUrl  = primary.url;
+      State.currentStreamName = primary.name;
+    }
+  } else if (radioPlayer && !primary) {
+    if (!State.isPlaying) { radioPlayer.src = ''; State.currentStreamUrl = ''; }
+  }
+
+  // ── Stream switcher buttons (if multiple live streams) ───────────────
+  const selector  = document.getElementById('liveNowSelector');
+  const switcher  = document.getElementById('liveNowSwitcher');
+  if (selector && switcher) {
+    if (liveStreams.length > 1) {
+      selector.classList.remove('hidden');
+      switcher.innerHTML = liveStreams.map(s => `
+        <button onclick="switchLiveStream('${s.url.replace(/'/g,"\\'")}','${s.name.replace(/'/g,"\\'")}','${s.genre ? s.genre.replace(/'/g,"\\'") : ''}')"
+          class="text-xs px-3 py-1.5 rounded-full border transition-colors ${State.currentStreamUrl === s.url ? 'bg-orange-500/20 border-orange-500/40 text-orange-400 font-semibold' : 'bg-white/5 border-white/10 text-neutral-400 hover:text-white hover:border-white/30'}"
+          title="${s.bitrate || 128} kbps">
+          <i class="fas fa-radio mr-1"></i>${_escHtml(s.name)}
+        </button>`).join('');
+    } else {
+      selector.classList.add('hidden');
+    }
+  }
+}
+
+// Switch to a different live stream from the hero switcher
+function switchLiveStream(url, name, genre) {
+  // Update UI text immediately
+  const nameEl  = document.getElementById('liveNowName');
+  const genreEl = document.getElementById('liveNowGenre');
+  const domainEl= document.getElementById('liveNowDomain');
+  if (nameEl)   nameEl.textContent  = name;
+  if (genreEl)  genreEl.textContent = genre || 'Internet Radio';
+  if (domainEl) {
+    try { domainEl.textContent = new URL(url).hostname; }
+    catch(e) { domainEl.textContent = url.split('/')[2] || url; }
+  }
+  // Re-render switcher buttons so active state moves
+  State.currentStreamUrl  = url;
+  State.currentStreamName = name;
+  initLiveNow();    // refresh switcher button states
+  // If already playing, switch stream seamlessly
+  const rp = document.getElementById('radioPlayer');
+  if (State.isPlaying && rp) {
+    rp.src = url;
+    rp.play()
+      .then(() => { _setPlayState(true); showToast('\u25B6 Switched to: ' + name, 'success'); })
+      .catch(() => showToast('Could not connect to stream.', 'error'));
+  } else {
+    showToast('Stream selected: ' + name + ' \u2014 click Play to listen', 'info');
+  }
+}
 
 // ─── UTILITIES ────────────────────────────────────────
 function $(id)    { return document.getElementById(id); }
@@ -321,23 +422,80 @@ document.addEventListener('DOMContentLoaded', () => {
   updateSocialLinks();
   // Hydrate the home page Active Streams pane from localStorage / State
   renderHomeStreams();
+  // Hydrate Live Now panel + wire radio player to first live stream
+  initLiveNow();
 });
 
 // ─── RADIO PLAYER ──────────────────────────────────────
 function togglePlay() {
   const radioPlayer = $('radioPlayer');
   if (!radioPlayer) return;
+
   if (State.isPlaying) {
     radioPlayer.pause();
     _setPlayState(false);
-  } else {
-    radioPlayer.src = State.currentStreamUrl;
-    const btn = $('playBtn');
-    if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin text-white text-lg"></i>';
-    radioPlayer.play()
-      .then(() => _setPlayState(true))
-      .catch(() => { showToast('Stream unavailable. Try again shortly.', 'error'); _setPlayState(false); });
+    return;
   }
+
+  // Resolve the best available stream URL:
+  // 1. Currently selected URL (from switcher or playStream call)
+  // 2. First LIVE stream from Stream Manager with a real URL
+  // 3. mainStream from Settings
+  // 4. Hardcoded fallback
+  let url  = State.currentStreamUrl;
+  let name = State.currentStreamName;
+
+  if (!url || url === '' || url === '#') {
+    const firstLive = State.streams.find(s =>
+      s.status === 'live' && s.url && s.url.trim() !== '' && s.url !== '#'
+    );
+    if (firstLive) {
+      url  = firstLive.url;
+      name = firstLive.name;
+    } else if (State.settings && State.settings.mainStream) {
+      url  = State.settings.mainStream;
+      name = State.settings.stationName || 'OFURE RADIO';
+    } else {
+      url  = 'https://stream.zeno.fm/f3wvbbqmdg8uv';
+      name = 'OFURE RADIO MAIN';
+    }
+    State.currentStreamUrl  = url;
+    State.currentStreamName = name;
+  }
+
+  if (!url || url === '' || url === '#') {
+    showToast('No live stream configured. Add one in Admin \u2192 Stream Manager.', 'warning');
+    return;
+  }
+
+  // Show loading spinner
+  const btn = $('playBtn');
+  if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin text-white text-lg"></i>';
+
+  // Always set src fresh — avoids stale cached source
+  radioPlayer.src = '';
+  radioPlayer.load();
+  radioPlayer.src = url;
+  radioPlayer.volume = State.volume || 0.8;
+
+  radioPlayer.play()
+    .then(() => {
+      _setPlayState(true);
+      // Sync Live Now panel text in case it wasn't set yet
+      const nameEl  = $('liveNowName');
+      const domEl   = $('liveNowDomain');
+      if (nameEl) nameEl.textContent = name;
+      if (domEl) {
+        try { domEl.textContent = new URL(url).hostname; }
+        catch(e) { domEl.textContent = url.split('/')[2] || url; }
+      }
+    })
+    .catch(err => {
+      console.warn('togglePlay error:', err);
+      if (btn) btn.innerHTML = '<i id="playIcon" class="fas fa-play text-white text-lg ml-1"></i>';
+      showToast('Stream unavailable \u2014 check the URL in Stream Manager or try again.', 'error');
+      _setPlayState(false);
+    });
 }
 
 function _setPlayState(playing) {
@@ -358,20 +516,52 @@ function setVolume(val) {
 }
 
 function playStream(url, name) {
-  if (!url || url === '#') {
-    showToast('This stream is not available yet — check back soon!', 'warning');
+  if (!url || url === '' || url === '#') {
+    showToast('This stream has no URL configured yet. Edit it in Admin \u2192 Stream Manager.', 'warning');
     return;
   }
   State.currentStreamUrl  = url;
-  State.currentStreamName = name;
+  State.currentStreamName = name || 'Stream';
+
+  // Update Live Now panel info text immediately
+  const nameEl  = document.getElementById('liveNowName');
+  const genreEl = document.getElementById('liveNowGenre');
+  const domEl   = document.getElementById('liveNowDomain');
+  const stream  = State.streams.find(s => s.url === url);
+  if (nameEl)  nameEl.textContent  = name || 'Stream';
+  if (genreEl) genreEl.textContent = (stream && stream.genre) ? stream.genre : 'Internet Radio';
+  if (domEl) {
+    try { domEl.textContent = new URL(url).hostname; }
+    catch(e) { domEl.textContent = url.split('/')[2] || url; }
+  }
+
   const radioPlayer = $('radioPlayer');
   if (radioPlayer) {
-    radioPlayer.src = url;
+    // Stop previous, reset fully, then load new src
+    radioPlayer.pause();
+    radioPlayer.src = '';
+    radioPlayer.load();
+    radioPlayer.src    = url;
+    radioPlayer.volume = State.volume || 0.8;
+
+    // Show loading indicator
+    const playBtn = $('playBtn');
+    if (playBtn) playBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-white text-lg"></i>';
+
     radioPlayer.play()
-      .then(() => { _setPlayState(true); showToast(`▶ Now playing: ${name}`, 'success'); })
-      .catch(() => showToast('Could not connect to stream.', 'error'));
+      .then(() => {
+        _setPlayState(true);
+        showToast('\u25B6 Now playing: ' + (name || 'Stream'), 'success');
+        // Refresh switcher active states
+        initLiveNow();
+      })
+      .catch(err => {
+        console.warn('playStream error:', err);
+        _setPlayState(false);
+        showToast('\u26A0 Could not connect to "' + (name || 'stream') + '". Check the URL in Stream Manager.', 'error');
+      });
   } else {
-    showToast(`Stream selected: ${name}`, 'info');
+    showToast('Stream selected: ' + (name || 'Stream') + ' \u2014 click Play to listen', 'info');
   }
 }
 
@@ -799,8 +989,9 @@ function renderStreams() {
   const lc = $('liveStreamCount');   if (lc) lc.textContent = liveCount;
   const tc = $('totalStreamCount');  if (tc) tc.textContent = State.streams.length;
   const tl = $('totalListenerCount');if (tl) tl.textContent = totalListeners;
-  // Keep home page Active Streams pane in sync whenever admin renders streams
+  // Keep home page Active Streams pane + Live Now panel in sync
   renderHomeStreams();
+  initLiveNow();
 
   list.innerHTML = State.streams.map(s => `
     <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 hover:border-orange-500/20 transition-all stream-card" data-id="${s.id}" id="stream-card-${s.id}">
@@ -895,8 +1086,13 @@ function testStream(url, name, streamId) {
   if (testBtn)  { testBtn.classList.remove('text-neutral-400'); testBtn.classList.add('text-yellow-400'); }
   showToast('\u23F3 Connecting to ' + (name || 'stream') + '\u2026', 'info');
 
+  // Full reset to avoid stale src / cached error state
+  audio.pause();
+  audio.src = '';
+  audio.load();
   audio.src    = url;
   audio.volume = State.volume || 0.8;
+
   const playPromise = audio.play();
   if (playPromise !== undefined) {
     playPromise
@@ -966,6 +1162,10 @@ function testStreamModal() {
   if (icon)   icon.className = 'fas fa-spinner fa-spin text-xs';
 
   if (!audio) return;
+  // Full reset before load — avoids cached CORS/error state
+  audio.pause();
+  audio.src = '';
+  audio.load();
   audio.src    = url;
   audio.volume = State.volume || 0.8;
   const p = audio.play();
