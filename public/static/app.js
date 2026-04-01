@@ -1,5 +1,5 @@
 /* =====================================================
-   OFURE RADIO — Full Interactive Application v3.0
+   OFURE RADIO — Full Interactive Application v4.0
    All buttons, forms, modals and menus are REAL & ACTIVE
    ===================================================== */
 
@@ -50,8 +50,11 @@ const State = {
     language: 'en-US',
     desc:     'Your premier internet radio station broadcasting the best African and world music 24/7.'
   },
+  inbox: JSON.parse(localStorage.getItem('ofure_inbox') || '[]'),
   editingStreamId:   null,
   editingScheduleId: null,
+  editingInboxId:    null,
+  inboxFilter:       'all',
   mediaRecorder:     null,
   recordedChunks:    [],
   isRecording:       false,
@@ -67,11 +70,16 @@ function saveState(key) {
     schedule: () => localStorage.setItem('ofure_schedule', JSON.stringify(State.schedule)),
     podcasts: () => localStorage.setItem('ofure_podcasts', JSON.stringify(State.podcasts)),
     settings: () => localStorage.setItem('ofure_settings', JSON.stringify(State.settings)),
-    rss:      () => localStorage.setItem('ofure_rss',      JSON.stringify(State.rssSettings))
+    rss:      () => localStorage.setItem('ofure_rss',      JSON.stringify(State.rssSettings)),
+    inbox:    () => localStorage.setItem('ofure_inbox',    JSON.stringify(State.inbox))
   };
   if (map[key]) map[key]();
   // Any time streams change, refresh Home Active Streams pane AND Live Now panel
   if (key === 'streams') { renderHomeStreams(); initLiveNow(); }
+  // Any time settings change, sync the Email Us pane on home page
+  if (key === 'settings') { syncEmailUs(); }
+  // Any time inbox changes, update nav badge
+  if (key === 'inbox') { _updateInboxBadge(); }
 }
 
 // ─── HOME: LIVE ACTIVE STREAMS (syncs with Stream Manager) ────────────────
@@ -156,6 +164,19 @@ window.addEventListener('storage', function(e) {
       State.streams = JSON.parse(e.newValue);
       renderHomeStreams();
       initLiveNow();   // also refresh Live Now panel
+    } catch(err) { /* ignore */ }
+  }
+  if (e.key === 'ofure_settings' && e.newValue) {
+    try {
+      State.settings = JSON.parse(e.newValue);
+      syncEmailUs();
+    } catch(err) { /* ignore */ }
+  }
+  if (e.key === 'ofure_inbox' && e.newValue) {
+    try {
+      State.inbox = JSON.parse(e.newValue);
+      renderInbox();
+      _updateInboxBadge();
     } catch(err) { /* ignore */ }
   }
 });
@@ -420,10 +441,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   initAdmin();
   updateSocialLinks();
+  // Sync Email Us pane with settings email
+  syncEmailUs();
   // Hydrate the home page Active Streams pane from localStorage / State
   renderHomeStreams();
   // Hydrate Live Now panel + wire radio player to first live stream
   initLiveNow();
+  // Render inbox if on admin page
+  renderInbox();
+  _updateInboxBadge();
 });
 
 // ─── RADIO PLAYER ──────────────────────────────────────
@@ -568,12 +594,39 @@ function playStream(url, name) {
 // ─── CONTACT FORM ──────────────────────────────────────
 function handleContactForm(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
+  const form = e.target;
+  const btn  = form.querySelector('button[type="submit"]');
+  const name    = (form.querySelector('#contactName')    || {}).value || '';
+  const email   = (form.querySelector('#contactEmail')   || {}).value || '';
+  const subject = (form.querySelector('#contactSubject') || {}).value || 'General Enquiry';
+  const message = (form.querySelector('#contactMessage') || {}).value || '';
+
+  if (!name.trim() || !email.trim() || !message.trim()) {
+    showToast('Please fill in all required fields.', 'warning');
+    return;
+  }
+
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+
   setTimeout(() => {
+    // Save to local inbox
+    const msg = {
+      id:      Date.now(),
+      name:    name.trim(),
+      email:   email.trim(),
+      subject: subject || 'General Enquiry',
+      message: message.trim(),
+      status:  'pending',
+      reply:   '',
+      date:    new Date().toISOString()
+    };
+    State.inbox.unshift(msg);
+    saveState('inbox');
+    renderInbox();
+
     showToast('Message sent! We\'ll be in touch soon. 📬', 'success');
-    e.target.reset();
+    form.reset();
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Send Message';
   }, 1200);
@@ -596,12 +649,40 @@ function handleNewsletter(e) {
 function openSongRequest() { openModal('songRequestModal'); }
 function submitSongRequest(e) {
   e.preventDefault();
-  const btn = e.target.querySelector('button[type="submit"]');
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  const artistEl = form.querySelector('#reqArtist') || form.querySelector('[name="reqArtist"]');
+  const titleEl  = form.querySelector('#reqTitle')  || form.querySelector('[name="reqTitle"]');
+  const noteEl   = form.querySelector('#reqNote')   || form.querySelector('[name="reqNote"]');
+  const nameEl   = form.querySelector('#reqName')   || form.querySelector('[name="reqName"]');
+  const emailEl  = form.querySelector('#reqEmail')  || form.querySelector('[name="reqEmail"]');
+
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
   setTimeout(() => {
+    // Save song request to inbox
+    const artist = artistEl ? artistEl.value.trim() : '';
+    const title  = titleEl  ? titleEl.value.trim()  : '';
+    const note   = noteEl   ? noteEl.value.trim()   : '';
+    const reqName  = nameEl  ? nameEl.value.trim()  : 'Listener';
+    const reqEmail = emailEl ? emailEl.value.trim() : '';
+    if (artist || title) {
+      const songMsg = {
+        id:      Date.now(),
+        name:    reqName,
+        email:   reqEmail,
+        subject: 'Song Request',
+        message: [artist && ('Artist: ' + artist), title && ('Song: ' + title), note && ('Note: ' + note)].filter(Boolean).join('\n'),
+        status:  'pending',
+        reply:   '',
+        date:    new Date().toISOString()
+      };
+      State.inbox.unshift(songMsg);
+      saveState('inbox');
+      renderInbox();
+    }
     showToast('Song request sent! 🎵 DJs will try to play it soon.', 'success');
-    e.target.reset();
+    form.reset();
     closeModal('songRequestModal');
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-music mr-2"></i>Request Song';
@@ -725,6 +806,7 @@ function showPanel(id) {
   if (id === 'schedule') renderSchedule();
   if (id === 'podcast')  renderPodcasts();
   if (id === 'settings') populateSettings();
+  if (id === 'inbox')    renderInbox();
   if (window.innerWidth < 1024) {
     const sb = $('adminSidebar');
     if (sb) sb.classList.remove('open');
@@ -2131,6 +2213,7 @@ function saveSettings(e) {
 
   saveState('settings');
   updateSocialLinks();
+  syncEmailUs(); // Update Email Us pane on home page
 
   // Visual feedback
   const indicator = $('settingsSaveIndicator');
@@ -2163,6 +2246,208 @@ function resetSettings() {
   saveState('settings');
   populateSettings();
   showToast('Settings reset to default.', 'info');
+}
+
+// ─── EMAIL US SYNC ────────────────────────────────────
+function syncEmailUs() {
+  const email = (State.settings && State.settings.email) || 'hello@ofureradio.com';
+  const link  = document.getElementById('emailUsLink');
+  const addr  = document.getElementById('emailUsAddress');
+  if (link) link.href = 'mailto:' + email;
+  if (addr) addr.textContent = email;
+}
+
+// ─── LISTENER INBOX ────────────────────────────────────
+function _updateInboxBadge() {
+  const pending = State.inbox.filter(m => m.status === 'pending').length;
+  // Sidebar badge
+  const badge = document.getElementById('inboxNavBadge');
+  if (badge) {
+    badge.textContent = pending > 0 ? (pending > 99 ? '99+' : pending) : '';
+    badge.style.display = pending > 0 ? '' : 'none';
+  }
+  // Dashboard stat card
+  const statEl = document.getElementById('inboxStatPendingDash');
+  if (statEl) statEl.textContent = pending;
+}
+
+function renderInbox() {
+  const list = document.getElementById('inboxList');
+  if (!list) return;
+
+  const filter  = State.inboxFilter || 'all';
+  const msgs    = filter === 'all' ? State.inbox : State.inbox.filter(m => m.status === filter);
+
+  // Update stat counters
+  const total    = State.inbox.length;
+  const pending  = State.inbox.filter(m => m.status === 'pending').length;
+  const approved = State.inbox.filter(m => m.status === 'approved').length;
+  const requests = State.inbox.filter(m => m.subject === 'Song Request').length;
+
+  const setTxt = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+  setTxt('inboxStatTotal',    total);
+  setTxt('inboxStatPending',  pending);
+  setTxt('inboxStatApproved', approved);
+  setTxt('inboxStatRequests', requests);
+
+  _updateInboxBadge();
+
+  if (msgs.length === 0) {
+    list.innerHTML = `
+      <div class="text-center py-16 text-neutral-600">
+        <i class="fas fa-inbox text-4xl mb-4 block"></i>
+        <p class="font-semibold text-neutral-500">No messages${filter !== 'all' ? ' in this filter' : ' yet'}</p>
+        <p class="text-sm mt-1 text-neutral-600">Messages from your contact form will appear here</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = msgs.map(m => {
+    const isSong = m.subject === 'Song Request';
+    const statusColor = { pending: 'yellow', approved: 'green', rejected: 'red' }[m.status] || 'neutral';
+    const statusLabel = { pending: 'Pending', approved: 'Approved', rejected: 'Rejected' }[m.status] || m.status;
+    const dateStr = m.date ? new Date(m.date).toLocaleString([], {dateStyle:'medium',timeStyle:'short'}) : '';
+    return `
+      <div class="bg-neutral-900 border border-white/10 rounded-xl p-5 transition-all hover:border-white/20" id="inbox-msg-${m.id}">
+        <div class="flex items-start justify-between gap-3 flex-wrap">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-full bg-${isSong ? 'purple' : 'orange'}-500/20 flex items-center justify-center flex-shrink-0">
+              <i class="fas fa-${isSong ? 'music' : 'envelope'} text-${isSong ? 'purple' : 'orange'}-400"></i>
+            </div>
+            <div class="min-w-0">
+              <div class="text-white font-semibold truncate">${_escHtml(m.name)}</div>
+              <div class="text-neutral-500 text-xs">${_escHtml(m.email)}</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="text-xs px-2 py-0.5 rounded-full bg-${statusColor}-500/15 text-${statusColor}-400 border border-${statusColor}-500/20 font-semibold">${statusLabel}</span>
+            ${isSong ? '<span class="text-xs px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/20">🎵 Song Req</span>' : ''}
+          </div>
+        </div>
+        <div class="mt-3">
+          <div class="text-neutral-400 text-xs font-semibold uppercase tracking-wider mb-1">${_escHtml(m.subject)}</div>
+          <p class="text-neutral-300 text-sm leading-relaxed whitespace-pre-wrap">${_escHtml(m.message)}</p>
+        </div>
+        ${m.reply ? `<div class="mt-3 bg-green-500/5 border border-green-500/20 rounded-lg p-3"><div class="text-green-400 text-xs font-semibold mb-1"><i class="fas fa-reply mr-1"></i>Reply sent</div><p class="text-neutral-400 text-sm whitespace-pre-wrap">${_escHtml(m.reply)}</p></div>` : ''}
+        <div class="mt-4 flex items-center justify-between gap-2 flex-wrap">
+          <span class="text-neutral-600 text-xs">${dateStr}</span>
+          <div class="flex gap-2 flex-wrap">
+            ${m.status !== 'approved' ? `<button onclick="approveInboxMsg(${m.id})" class="px-3 py-1 text-xs font-semibold rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-colors"><i class="fas fa-check mr-1"></i>Approve</button>` : ''}
+            ${m.status !== 'rejected' ? `<button onclick="rejectInboxMsg(${m.id})" class="px-3 py-1 text-xs font-semibold rounded-lg bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors"><i class="fas fa-times mr-1"></i>Reject</button>` : ''}
+            <button onclick="openInboxReply(${m.id})" class="px-3 py-1 text-xs font-semibold rounded-lg bg-orange-500/10 text-orange-400 border border-orange-500/20 hover:bg-orange-500/20 transition-colors"><i class="fas fa-reply mr-1"></i>${m.reply ? 'Edit Reply' : 'Reply'}</button>
+            <button onclick="deleteInboxMsg(${m.id})" class="px-3 py-1 text-xs font-semibold rounded-lg bg-white/5 text-neutral-500 border border-white/10 hover:text-red-400 hover:border-red-500/30 transition-colors"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function filterInbox(filter) {
+  State.inboxFilter = filter;
+  // Update filter button styles
+  ['all','pending','approved','rejected'].forEach(f => {
+    const btn = document.getElementById('inboxFilter' + f.charAt(0).toUpperCase() + f.slice(1));
+    if (!btn) return;
+    if (f === filter) {
+      btn.className = 'inbox-filter-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-orange-500/20 text-orange-400 border border-orange-500/30';
+    } else {
+      btn.className = 'inbox-filter-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-neutral-400 hover:text-white bg-white/5 border border-white/10';
+    }
+  });
+  renderInbox();
+}
+
+function approveInboxMsg(id) {
+  const msg = State.inbox.find(m => m.id === id);
+  if (!msg) return;
+  msg.status = 'approved';
+  saveState('inbox');
+  renderInbox();
+  showToast('Message approved ✅', 'success');
+}
+
+function rejectInboxMsg(id) {
+  const msg = State.inbox.find(m => m.id === id);
+  if (!msg) return;
+  msg.status = 'rejected';
+  saveState('inbox');
+  renderInbox();
+  showToast('Message rejected.', 'info');
+}
+
+function deleteInboxMsg(id) {
+  if (!confirm('Delete this message? This cannot be undone.')) return;
+  State.inbox = State.inbox.filter(m => m.id !== id);
+  saveState('inbox');
+  renderInbox();
+  showToast('Message deleted.', 'info');
+}
+
+function clearInbox() {
+  if (!confirm('Clear all messages? This cannot be undone.')) return;
+  State.inbox = [];
+  saveState('inbox');
+  renderInbox();
+  showToast('Inbox cleared.', 'info');
+}
+
+function openInboxReply(id) {
+  const msg = State.inbox.find(m => m.id === id);
+  if (!msg) return;
+  State.editingInboxId = id;
+  const isSong = msg.subject === 'Song Request';
+
+  // Populate modal
+  const titleEl  = document.getElementById('replyModalTitle');
+  const origEl   = document.getElementById('replyOriginalMsg');
+  const textEl   = document.getElementById('replyText');
+  const labelEl  = document.getElementById('replyTextLabel');
+  const noteWrap = document.getElementById('replyMusicNote');
+  const submitLb = document.getElementById('replySubmitLabel');
+
+  if (titleEl)  titleEl.textContent  = isSong ? '🎵 Respond to Song Request' : 'Reply to Message';
+  if (labelEl)  labelEl.textContent  = isSong ? 'DJ / On-Air Response' : 'Your Reply';
+  if (submitLb) submitLb.textContent = 'Send Reply';
+
+  if (origEl) origEl.innerHTML = `
+    <div class="flex items-center gap-2 mb-2">
+      <span class="text-orange-400 font-semibold text-sm">${_escHtml(msg.name)}</span>
+      <span class="text-neutral-600 text-xs">•</span>
+      <span class="text-neutral-500 text-xs">${_escHtml(msg.email)}</span>
+      <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-white/5 text-neutral-400">${_escHtml(msg.subject)}</span>
+    </div>
+    <p class="text-neutral-300 text-sm whitespace-pre-wrap">${_escHtml(msg.message)}</p>`;
+
+  if (textEl)  textEl.value = msg.reply || '';
+  if (noteWrap) noteWrap.classList.toggle('hidden', !isSong);
+
+  openModal('inboxReplyModal');
+}
+
+function sendInboxReply() {
+  const id  = State.editingInboxId;
+  const msg = State.inbox.find(m => m.id === id);
+  if (!msg) return;
+
+  const textEl   = document.getElementById('replyText');
+  const noteEl   = document.getElementById('replyMusicNoteText');
+  const replyTxt = textEl ? textEl.value.trim() : '';
+  const noteTxt  = noteEl ? noteEl.value.trim() : '';
+
+  if (!replyTxt) { showToast('Please write a reply before sending.', 'warning'); return; }
+
+  const btn = document.getElementById('replySubmitBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...'; }
+
+  setTimeout(() => {
+    msg.reply  = replyTxt + (noteTxt ? '\n\n📢 On-Air Note: ' + noteTxt : '');
+    msg.status = 'approved';
+    saveState('inbox');
+    renderInbox();
+    closeModal('inboxReplyModal');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> <span id="replySubmitLabel">Send Reply</span>'; }
+    showToast('Reply saved and message approved! ✅', 'success');
+  }, 800);
 }
 
 // ─── SOCIAL LINKS ─────────────────────────────────────

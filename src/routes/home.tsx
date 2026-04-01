@@ -391,13 +391,14 @@ export function homePage(): string {
             Whether you want to request a song, advertise with us, collaborate on a show, or just share some love — we want to hear from you.
           </p>
           <div class="space-y-4">
-            <a href="mailto:hello@ofureradio.com" class="flex items-center gap-4 bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors">
+            <!-- Email Us — href and displayed address synced from Settings via JS -->
+            <a id="emailUsLink" href="mailto:hello@ofureradio.com" class="flex items-center gap-4 bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-colors">
               <div class="w-10 h-10 rounded-full bg-orange-500/20 flex items-center justify-center">
                 <i class="fas fa-envelope text-orange-400"></i>
               </div>
               <div>
                 <div class="text-white font-semibold">Email Us</div>
-                <div class="text-neutral-400 text-sm">hello@ofureradio.com</div>
+                <div class="text-neutral-400 text-sm" id="emailUsAddress">hello@ofureradio.com</div>
               </div>
             </a>
             <div class="flex items-center gap-4 bg-white/5 rounded-xl p-4">
@@ -421,31 +422,38 @@ export function homePage(): string {
 
         <div class="bg-white/5 border border-white/10 rounded-2xl p-8">
           <h3 class="text-white font-bold text-xl mb-6">Send a Message</h3>
-          <form onsubmit="handleContactForm(event)" class="space-y-4">
+          <form onsubmit="handleContactForm(event)" id="contactForm" class="space-y-4">
             <div>
               <label class="block text-neutral-400 text-sm mb-2">Your Name</label>
-              <input type="text" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors" placeholder="John Doe">
+              <input type="text" id="contactName" name="contactName" required
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors" placeholder="John Doe">
             </div>
             <div>
               <label class="block text-neutral-400 text-sm mb-2">Email Address</label>
-              <input type="email" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors" placeholder="john@example.com">
+              <input type="email" id="contactEmail" name="contactEmail" required
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors" placeholder="john@example.com">
             </div>
             <div>
               <label class="block text-neutral-400 text-sm mb-2">Subject</label>
-              <select class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+              <select id="contactSubject" name="contactSubject"
+                class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
                 <option value="" class="bg-neutral-900">Choose a subject</option>
-                <option value="request" class="bg-neutral-900">Song Request</option>
-                <option value="ad" class="bg-neutral-900">Advertising</option>
-                <option value="show" class="bg-neutral-900">Show Collaboration</option>
-                <option value="other" class="bg-neutral-900">Other</option>
+                <option value="Song Request" class="bg-neutral-900">🎵 Song Request</option>
+                <option value="Advertising" class="bg-neutral-900">📢 Advertising</option>
+                <option value="Show Collaboration" class="bg-neutral-900">🎙️ Show Collaboration</option>
+                <option value="General Enquiry" class="bg-neutral-900">💬 General Enquiry</option>
+                <option value="Other" class="bg-neutral-900">📝 Other</option>
               </select>
             </div>
             <div>
               <label class="block text-neutral-400 text-sm mb-2">Message</label>
-              <textarea required rows="4" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors resize-none" placeholder="Your message here..."></textarea>
+              <textarea id="contactMessage" name="contactMessage" required rows="4"
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors resize-none"
+                placeholder="Your message here..."></textarea>
             </div>
-            <button type="submit" class="w-full bg-gradient-to-r from-orange-500 to-purple-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity">
-              <i class="fas fa-paper-plane mr-2"></i>Send Message
+            <button type="submit" id="contactSendBtn"
+              class="w-full bg-gradient-to-r from-orange-500 to-purple-600 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+              <i class="fas fa-paper-plane"></i>Send Message
             </button>
           </form>
         </div>

@@ -74,6 +74,7 @@ export function adminPage(): string {
                 { id: 'podcast', icon: 'microphone', label: 'Podcast Studio' },
                 { id: 'schedule', icon: 'calendar-alt', label: 'Show Schedule' },
                 { id: 'ai', icon: 'robot', label: 'AI Studio' },
+                { id: 'inbox', icon: 'inbox', label: 'Listener Inbox', inboxBadge: true },
                 { id: 'security', icon: 'shield-alt', label: 'Security & PIN' },
                 { id: 'settings', icon: 'cog', label: 'Settings' },
               ].map((item, i) => `
@@ -83,6 +84,7 @@ export function adminPage(): string {
                 <i class="fas fa-${item.icon} w-4 text-center"></i>
                 <span class="font-medium">${item.label}</span>
                 ${item.badge ? `<span class="ml-auto bg-orange-500/20 text-orange-400 text-xs px-2 py-0.5 rounded-full">${item.badge}</span>` : ''}
+                ${item.inboxBadge ? `<span id="inboxNavBadge" class="ml-auto bg-yellow-500/20 text-yellow-400 text-xs px-2 py-0.5 rounded-full" style="display:none"></span>` : ''}
               </button>
               `).join('')}
             </nav>
@@ -117,7 +119,7 @@ export function adminPage(): string {
                 <p class="text-neutral-400">Welcome to OFURE RADIO Admin Studio</p>
               </div>
 
-              <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
                 ${[
                   { label: 'Blog Articles', value: articles.length.toString(), icon: 'newspaper', color: 'orange' },
                   { label: 'Featured Posts', value: featuredCount.toString(), icon: 'star', color: 'yellow' },
@@ -133,6 +135,14 @@ export function adminPage(): string {
                   <div class="text-neutral-400 text-sm">${stat.label}</div>
                 </div>
                 `).join('')}
+                <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4 cursor-pointer hover:bg-yellow-500/15 transition-colors" onclick="showPanel('inbox')">
+                  <div class="flex items-center justify-between mb-2">
+                    <i class="fas fa-inbox text-yellow-400 text-xl"></i>
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
+                  </div>
+                  <div class="text-2xl font-black text-white" id="inboxStatPendingDash">0</div>
+                  <div class="text-neutral-400 text-sm">Pending Messages</div>
+                </div>
               </div>
 
               <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 mb-8">
@@ -706,6 +716,108 @@ export function adminPage(): string {
                       <!-- Populated by JS renderSchedule() -->
                     </tbody>
                   </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- INBOX PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
+            <div id="panel-inbox" class="admin-panel hidden">
+              <div class="mb-6 flex items-start justify-between flex-wrap gap-4">
+                <div>
+                  <h1 class="text-3xl font-black font-display text-white mb-1">Listener Inbox</h1>
+                  <p class="text-neutral-400">Messages, song requests and enquiries from your listeners</p>
+                </div>
+                <div class="flex gap-2 flex-wrap">
+                  <button onclick="filterInbox('all')" id="inboxFilterAll"
+                    class="inbox-filter-btn active px-4 py-2 rounded-lg text-sm font-semibold transition-colors bg-orange-500/20 text-orange-400 border border-orange-500/30">
+                    All
+                  </button>
+                  <button onclick="filterInbox('pending')" id="inboxFilterPending"
+                    class="inbox-filter-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-neutral-400 hover:text-white bg-white/5 border border-white/10">
+                    <span class="w-2 h-2 rounded-full bg-yellow-400 inline-block mr-1"></span>Pending
+                  </button>
+                  <button onclick="filterInbox('approved')" id="inboxFilterApproved"
+                    class="inbox-filter-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-neutral-400 hover:text-white bg-white/5 border border-white/10">
+                    <span class="w-2 h-2 rounded-full bg-green-400 inline-block mr-1"></span>Approved
+                  </button>
+                  <button onclick="filterInbox('rejected')" id="inboxFilterRejected"
+                    class="inbox-filter-btn px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-neutral-400 hover:text-white bg-white/5 border border-white/10">
+                    <span class="w-2 h-2 rounded-full bg-red-400 inline-block mr-1"></span>Rejected
+                  </button>
+                  <button onclick="clearInbox()" class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors text-neutral-500 hover:text-red-400 bg-white/5 border border-white/10">
+                    <i class="fas fa-trash mr-1"></i>Clear All
+                  </button>
+                </div>
+              </div>
+
+              <!-- Inbox stats bar -->
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-neutral-900 border border-white/10 rounded-xl p-4 text-center">
+                  <div class="text-2xl font-black text-white" id="inboxStatTotal">0</div>
+                  <div class="text-neutral-400 text-xs mt-1">Total Messages</div>
+                </div>
+                <div class="bg-neutral-900 border border-yellow-500/20 rounded-xl p-4 text-center">
+                  <div class="text-2xl font-black text-yellow-400" id="inboxStatPending">0</div>
+                  <div class="text-neutral-400 text-xs mt-1">Pending Review</div>
+                </div>
+                <div class="bg-neutral-900 border border-green-500/20 rounded-xl p-4 text-center">
+                  <div class="text-2xl font-black text-green-400" id="inboxStatApproved">0</div>
+                  <div class="text-neutral-400 text-xs mt-1">Approved</div>
+                </div>
+                <div class="bg-neutral-900 border border-orange-500/20 rounded-xl p-4 text-center">
+                  <div class="text-2xl font-black text-orange-400" id="inboxStatRequests">0</div>
+                  <div class="text-neutral-400 text-xs mt-1">Song Requests</div>
+                </div>
+              </div>
+
+              <!-- Messages list -->
+              <div id="inboxList" class="space-y-4">
+                <div class="text-center py-16 text-neutral-600">
+                  <i class="fas fa-inbox text-4xl mb-4 block"></i>
+                  <p class="font-semibold">No messages yet</p>
+                  <p class="text-sm mt-1">Messages from your contact form will appear here</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reply / Edit Message Modal (shared) -->
+            <div id="inboxReplyModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+              <div class="bg-neutral-900 border border-white/20 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                  <h3 class="text-white font-bold text-lg" id="replyModalTitle">Reply to Message</h3>
+                  <button onclick="closeModal('inboxReplyModal')" class="text-neutral-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div class="p-6 space-y-4">
+                  <!-- Original message summary -->
+                  <div class="bg-white/5 border border-white/10 rounded-xl p-4" id="replyOriginalMsg"></div>
+                  <!-- Reply / response textarea -->
+                  <div>
+                    <label class="block text-neutral-400 text-sm mb-2" id="replyTextLabel">Your Reply</label>
+                    <textarea id="replyText" rows="6"
+                      class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors resize-none"
+                      placeholder="Write your reply here…"></textarea>
+                  </div>
+                  <!-- For song request: add Now Playing note -->
+                  <div id="replyMusicNote" class="hidden">
+                    <label class="block text-neutral-400 text-sm mb-2">On-Air Note (shown to listener)</label>
+                    <input type="text" id="replyMusicNoteText"
+                      class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors"
+                      placeholder="e.g. Your song will be played at 3:00 PM today!">
+                  </div>
+                  <div class="flex gap-3">
+                    <button onclick="sendInboxReply()" id="replySubmitBtn"
+                      class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+                      <i class="fas fa-paper-plane"></i><span id="replySubmitLabel">Send Reply</span>
+                    </button>
+                    <button onclick="closeModal('inboxReplyModal')"
+                      class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors">
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
