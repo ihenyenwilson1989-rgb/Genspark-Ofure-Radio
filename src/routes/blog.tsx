@@ -317,7 +317,11 @@ export function blogPage(activeCategory: string = ''): string {
         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center">
           <i class="fas fa-broadcast-tower text-white text-xs"></i>
         </div>
-        <span class="text-neutral-400 text-sm">© 2025 OFURE RADIO. All rights reserved.</span>
+        <div>
+          <span class="text-white font-black text-sm font-display">OFURE RADIO</span>
+          <span class="block text-orange-400 text-xs tracking-widest uppercase font-bold">THIS IS WHERE IT ALL BEGAN</span>
+          <span class="text-neutral-500 text-xs">© 2026 OFURE RADIO. All rights reserved.</span>
+        </div>
       </div>
       <div class="flex gap-4">
         <a href="/" class="text-neutral-500 hover:text-orange-400 text-sm transition-colors">Home</a>
@@ -537,7 +541,11 @@ export function blogArticlePage(article: NewsArticle): string {
         <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-purple-600 flex items-center justify-center">
           <i class="fas fa-broadcast-tower text-white text-xs"></i>
         </div>
-        <span class="text-neutral-400 text-sm">© 2025 OFURE RADIO. All rights reserved.</span>
+        <div>
+          <span class="text-white font-black text-sm font-display">OFURE RADIO</span>
+          <span class="block text-orange-400 text-xs tracking-widest uppercase font-bold">THIS IS WHERE IT ALL BEGAN</span>
+          <span class="text-neutral-500 text-xs">© 2026 OFURE RADIO. All rights reserved.</span>
+        </div>
       </div>
       <div class="flex gap-4">
         <a href="/" class="text-neutral-500 hover:text-orange-400 text-sm transition-colors">Home</a>

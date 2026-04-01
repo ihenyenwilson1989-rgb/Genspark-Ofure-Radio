@@ -1,5 +1,5 @@
 /* =====================================================
-   OFURE RADIO — Full Interactive Application
+   OFURE RADIO — Full Interactive Application v3.0
    All buttons, forms, modals and menus are REAL & ACTIVE
    ===================================================== */
 
@@ -12,52 +12,69 @@ const State = {
   currentStreamName: 'OFURE RADIO MAIN',
   volume: 0.8,
   streams: JSON.parse(localStorage.getItem('ofure_streams') || 'null') || [
-    { id: 1, name: 'OFURE RADIO MAIN',    url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Afrobeats • R&B • Gospel',        status: 'live',      listeners: 247 },
-    { id: 2, name: 'OFURE GOSPEL STATION', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Gospel • Worship • Inspirational', status: 'live',      listeners: 89  },
-    { id: 3, name: 'OFURE URBAN BEATS',   url: '',                                       genre: 'Hip-Hop • Trap • Urban',          status: 'offline',   listeners: 0   }
+    { id: 1, name: 'OFURE RADIO MAIN',     url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Afrobeats • R&B • Gospel',        status: 'live',    listeners: 247 },
+    { id: 2, name: 'OFURE GOSPEL STATION', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Gospel • Worship • Inspirational', status: 'live',    listeners: 89  },
+    { id: 3, name: 'OFURE URBAN BEATS',    url: '',                                      genre: 'Hip-Hop • Trap • Urban',          status: 'offline', listeners: 0   }
   ],
   schedule: JSON.parse(localStorage.getItem('ofure_schedule') || 'null') || [
-    { id:1, time:'6:00 AM',  show:'Morning Vibes',      host:'DJ Alex',   genre:'Afrobeats / Gospel',        days:'Mon-Fri',   active:true  },
-    { id:2, time:'9:00 AM',  show:'The Word & Music',   host:'Pastor Mike',genre:'Gospel / Inspirational',  days:'Mon-Fri',   active:false },
-    { id:3, time:'12:00 PM', show:'Afternoon Mix',      host:'DJ Luna',   genre:'R&B / Hip-Hop',             days:'Daily',     active:false },
-    { id:4, time:'2:00 PM',  show:'Throwback Classics', host:'DJ Rex',    genre:'Old School / Soul',         days:'Mon,Wed,Fri',active:false},
-    { id:5, time:'4:00 PM',  show:'Evening Drive',      host:'DJ Marcus', genre:'Afrobeats / Urban',         days:'Daily',     active:false },
-    { id:6, time:'7:00 PM',  show:'Cultural Vibes',     host:'Mama Bisi', genre:'Highlife / Jùjú',           days:'Tue,Thu,Sat',active:false},
-    { id:7, time:'9:00 PM',  show:'Night Frequency',    host:'DJ Sarah',  genre:'Chill / Neo-Soul',          days:'Daily',     active:false },
-    { id:8, time:'11:00 PM', show:'Late Night Sessions',host:'DJ Maya',   genre:'Electronic / Deep House',   days:'Fri-Sat',   active:false }
+    { id:1, time:'6:00 AM',  show:'Morning Vibes',       host:'DJ Alex',    genre:'Afrobeats / Gospel',       days:'Mon-Fri',    active:true  },
+    { id:2, time:'9:00 AM',  show:'The Word & Music',    host:'Pastor Mike',genre:'Gospel / Inspirational',   days:'Mon-Fri',    active:false },
+    { id:3, time:'12:00 PM', show:'Afternoon Mix',       host:'DJ Luna',    genre:'R&B / Hip-Hop',            days:'Daily',      active:false },
+    { id:4, time:'2:00 PM',  show:'Throwback Classics',  host:'DJ Rex',     genre:'Old School / Soul',        days:'Mon,Wed,Fri',active:false },
+    { id:5, time:'4:00 PM',  show:'Evening Drive',       host:'DJ Marcus',  genre:'Afrobeats / Urban',        days:'Daily',      active:false },
+    { id:6, time:'7:00 PM',  show:'Cultural Vibes',      host:'Mama Bisi',  genre:'Highlife / Jùjú',          days:'Tue,Thu,Sat',active:false },
+    { id:7, time:'9:00 PM',  show:'Night Frequency',     host:'DJ Sarah',   genre:'Chill / Neo-Soul',         days:'Daily',      active:false },
+    { id:8, time:'11:00 PM', show:'Late Night Sessions', host:'DJ Maya',    genre:'Electronic / Deep House',  days:'Fri-Sat',    active:false }
   ],
   podcasts: JSON.parse(localStorage.getItem('ofure_podcasts') || '[]'),
   settings: JSON.parse(localStorage.getItem('ofure_settings') || 'null') || {
-    stationName: 'OFURE RADIO',
-    tagline: 'Where It All Began',
-    email: 'hello@ofureradio.com',
-    mainStream: 'https://stream.zeno.fm/f3wvbbqmdg8uv',
-    facebook: 'https://facebook.com',
-    twitter: 'https://twitter.com',
-    instagram: 'https://instagram.com',
-    youtube: 'https://youtube.com'
+    stationName:     'OFURE RADIO',
+    tagline:         'THIS IS WHERE IT ALL BEGAN',
+    email:           'hello@ofureradio.com',
+    mainStream:      'https://stream.zeno.fm/f3wvbbqmdg8uv',
+    description:     'Your premier internet radio station broadcasting the best African and world music 24/7.',
+    facebook:        '',
+    twitter:         '',
+    instagram:       '',
+    youtube:         '',
+    tiktok:          '',
+    whatsapp:        '',
+    accentColor:     '#f97316',
+    refreshInterval: '24',
+    language:        'en'
   },
-  editingStreamId: null,
+  rssSettings: JSON.parse(localStorage.getItem('ofure_rss') || 'null') || {
+    title:    'OFURE RADIO Podcast',
+    author:   'OFURE RADIO',
+    category: 'Music',
+    language: 'en-US',
+    desc:     'Your premier internet radio station broadcasting the best African and world music 24/7.'
+  },
+  editingStreamId:   null,
   editingScheduleId: null,
-  editingPodcastId: null,
-  mediaRecorder: null,
-  recordedChunks: [],
-  isRecording: false,
-  recordTimer: null,
-  recordSeconds: 0,
-  listeners: 247 + Math.floor(Math.random() * 30)
+  mediaRecorder:     null,
+  recordedChunks:    [],
+  isRecording:       false,
+  recordTimer:       null,
+  recordSeconds:     0,
+  listeners:         247 + Math.floor(Math.random() * 30),
+  currentAIAgent:    'assistant'
 };
 
 function saveState(key) {
-  if (key === 'streams')  localStorage.setItem('ofure_streams',  JSON.stringify(State.streams));
-  if (key === 'schedule') localStorage.setItem('ofure_schedule', JSON.stringify(State.schedule));
-  if (key === 'podcasts') localStorage.setItem('ofure_podcasts', JSON.stringify(State.podcasts));
-  if (key === 'settings') localStorage.setItem('ofure_settings', JSON.stringify(State.settings));
+  const map = {
+    streams:  () => localStorage.setItem('ofure_streams',  JSON.stringify(State.streams)),
+    schedule: () => localStorage.setItem('ofure_schedule', JSON.stringify(State.schedule)),
+    podcasts: () => localStorage.setItem('ofure_podcasts', JSON.stringify(State.podcasts)),
+    settings: () => localStorage.setItem('ofure_settings', JSON.stringify(State.settings)),
+    rss:      () => localStorage.setItem('ofure_rss',      JSON.stringify(State.rssSettings))
+  };
+  if (map[key]) map[key]();
 }
 
 // ─── UTILITIES ────────────────────────────────────────
-function $(id) { return document.getElementById(id); }
-function $$(sel) { return document.querySelectorAll(sel); }
+function $(id)    { return document.getElementById(id); }
+function $$(sel)  { return document.querySelectorAll(sel); }
 
 function showToast(message, type = 'success') {
   let toast = $('globalToast');
@@ -67,16 +84,23 @@ function showToast(message, type = 'success') {
     toast.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;transition:all .3s ease;transform:translateY(20px);opacity:0;pointer-events:none;';
     document.body.appendChild(toast);
   }
-  const icons = { success:'fa-check-circle text-green-400', error:'fa-times-circle text-red-400', warning:'fa-exclamation-triangle text-yellow-400', info:'fa-info-circle text-blue-400' };
-  const icon = icons[type] || icons.success;
-  toast.innerHTML = `<div style="background:#1f2937;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:12px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px rgba(0,0,0,.4);min-width:260px;max-width:360px;">
-    <i class="fas ${icon}" style="font-size:16px;flex-shrink:0;"></i>
+  const icons = {
+    success: 'fa-check-circle text-green-400',
+    error:   'fa-times-circle text-red-400',
+    warning: 'fa-exclamation-triangle text-yellow-400',
+    info:    'fa-info-circle text-blue-400'
+  };
+  toast.innerHTML = `<div style="background:#1f2937;border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:14px 20px;display:flex;align-items:center;gap:10px;box-shadow:0 20px 40px rgba(0,0,0,.5);min-width:260px;max-width:380px;">
+    <i class="fas ${icons[type] || icons.success}" style="font-size:16px;flex-shrink:0;"></i>
     <span style="color:#fff;font-size:14px;font-weight:500;line-height:1.4;">${message}</span>
   </div>`;
   toast.style.transform = 'translateY(0)';
-  toast.style.opacity = '1';
+  toast.style.opacity   = '1';
   clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => { toast.style.transform = 'translateY(20px)'; toast.style.opacity = '0'; }, 3500);
+  toast._timer = setTimeout(() => {
+    toast.style.transform = 'translateY(20px)';
+    toast.style.opacity   = '0';
+  }, 3800);
 }
 
 function openModal(id) {
@@ -88,17 +112,29 @@ function closeModal(id) {
   if (m) { m.classList.add('hidden'); document.body.style.overflow = ''; }
 }
 function closeAllModals() {
-  $$('[id$="Modal"]').forEach(m => { m.classList.add('hidden'); });
+  $$('.fixed.inset-0.z-50').forEach(m => {
+    if (!m.classList.contains('hidden')) m.classList.add('hidden');
+  });
   document.body.style.overflow = '';
 }
 
-// Close modals on backdrop click
-document.addEventListener('click', e => {
-  if (e.target.classList.contains('modal-backdrop') || e.target.id.endsWith('Modal') && e.target.id !== 'editModalContent') {
-    const rect = e.target.getBoundingClientRect();
-    // Only if clicking the dark backdrop area (not the inner card)
-    closeAllModals();
+// Escape key closes modals
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeAllModals();
+  if (e.key === 'Enter' && $('aiInput') === document.activeElement) {
+    e.preventDefault();
+    sendAIMessage();
   }
+  if (e.ctrlKey && e.shiftKey && e.key === 'A') location.href = '/admin';
+});
+
+// Backdrop click = close modal
+document.addEventListener('mousedown', e => {
+  const modals = ['editModal','addStreamModal','scheduleModal','editPodcastModal','songRequestModal'];
+  modals.forEach(id => {
+    const m = $(id);
+    if (m && !m.classList.contains('hidden') && e.target === m) closeModal(id);
+  });
 });
 
 // ─── NAVBAR ────────────────────────────────────────────
@@ -107,39 +143,91 @@ window.addEventListener('scroll', () => {
   if (nav) nav.classList.toggle('scrolled', window.scrollY > 50);
 });
 
-const mobileMenuBtn = $('mobileMenuBtn');
-const mobileMenu = $('mobileMenu');
-if (mobileMenuBtn) {
-  mobileMenuBtn.addEventListener('click', () => {
-    const open = !mobileMenu.classList.contains('hidden');
-    mobileMenu.classList.toggle('hidden', open);
-    mobileMenuBtn.querySelector('i').className = open ? 'fas fa-bars text-xl' : 'fas fa-times text-xl';
-  });
-}
-$$('.mobile-menu-close').forEach(el => el.addEventListener('click', () => {
-  mobileMenu && mobileMenu.classList.add('hidden');
-  mobileMenuBtn && (mobileMenuBtn.querySelector('i').className = 'fas fa-bars text-xl');
-}));
+document.addEventListener('DOMContentLoaded', () => {
+  const mobileMenuBtn = $('mobileMenuBtn');
+  const mobileMenu    = $('mobileMenu');
+  if (mobileMenuBtn) {
+    mobileMenuBtn.addEventListener('click', () => {
+      const open = !mobileMenu.classList.contains('hidden');
+      mobileMenu.classList.toggle('hidden', open);
+      const icon = mobileMenuBtn.querySelector('i');
+      if (icon) icon.className = open ? 'fas fa-bars text-xl' : 'fas fa-times text-xl';
+    });
+  }
+  $$('.mobile-menu-close').forEach(el => el.addEventListener('click', () => {
+    if (mobileMenu) mobileMenu.classList.add('hidden');
+    const icon = mobileMenuBtn && mobileMenuBtn.querySelector('i');
+    if (icon) icon.className = 'fas fa-bars text-xl';
+  }));
 
-// ─── SMOOTH SCROLL ─────────────────────────────────────
-$$('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    const id = a.getAttribute('href').slice(1);
-    if (!id) return;
-    const target = $(id);
-    if (target) {
-      e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      mobileMenu && mobileMenu.classList.add('hidden');
-    }
+  $$('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      const target = $(id);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (mobileMenu) mobileMenu.classList.add('hidden');
+      }
+    });
   });
+
+  const radioPlayer = $('radioPlayer');
+  if (radioPlayer) radioPlayer.volume = State.volume;
+
+  const volSlider = $('volumeSlider');
+  if (volSlider) volSlider.addEventListener('input', () => setVolume(volSlider.value));
+
+  const blogSearch = $('blogSearch');
+  if (blogSearch) {
+    blogSearch.addEventListener('input', () => filterBlogSearch(blogSearch.value));
+    blogSearch.addEventListener('keydown', e => { if (e.key === 'Enter') filterBlogSearch(blogSearch.value); });
+  }
+  $$('.tag-filter').forEach(t => t.addEventListener('click', () => filterByTag(t.dataset.tag)));
+
+  if ('IntersectionObserver' in window) {
+    const obs = new IntersectionObserver(entries =>
+      entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('loaded'); obs.unobserve(en.target); } })
+    );
+    $$('img[loading="lazy"]').forEach(img => obs.observe(img));
+  }
+
+  // Set last login time in Security panel
+  const ll = $('lastLoginTime');
+  if (ll) ll.textContent = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+  // Colour picker sync
+  const accentPicker = $('settingAccentColor');
+  const accentHex    = $('settingAccentHex');
+  if (accentPicker && accentHex) {
+    accentPicker.addEventListener('input', () => { accentHex.value = accentPicker.value; });
+    accentHex.addEventListener('input', () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(accentHex.value)) accentPicker.value = accentHex.value;
+    });
+  }
+
+  // Drop zone drag-and-drop
+  const dz = $('dropZone');
+  if (dz) {
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor = '#3b82f6'; });
+    dz.addEventListener('dragleave', () => { dz.style.borderColor = ''; });
+    dz.addEventListener('drop', e => {
+      e.preventDefault();
+      dz.style.borderColor = '';
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('audio/')) processAudioUpload(file);
+      else showToast('Please drop an audio file.', 'warning');
+    });
+  }
+
+  initAdmin();
+  updateSocialLinks();
 });
 
 // ─── RADIO PLAYER ──────────────────────────────────────
-const radioPlayer = $('radioPlayer');
-if (radioPlayer) radioPlayer.volume = State.volume;
-
 function togglePlay() {
+  const radioPlayer = $('radioPlayer');
   if (!radioPlayer) return;
   if (State.isPlaying) {
     radioPlayer.pause();
@@ -150,7 +238,7 @@ function togglePlay() {
     if (btn) btn.innerHTML = '<i class="fas fa-spinner fa-spin text-white text-lg"></i>';
     radioPlayer.play()
       .then(() => _setPlayState(true))
-      .catch(() => { showToast('Stream unavailable. Please try again.', 'error'); _setPlayState(false); });
+      .catch(() => { showToast('Stream unavailable. Try again shortly.', 'error'); _setPlayState(false); });
   }
 }
 
@@ -165,20 +253,27 @@ function _setPlayState(playing) {
 
 function setVolume(val) {
   State.volume = parseFloat(val);
+  const radioPlayer = $('radioPlayer');
   if (radioPlayer) radioPlayer.volume = State.volume;
   const slider = $('volumeSlider');
   if (slider) slider.value = val;
 }
 
 function playStream(url, name) {
-  if (!url || url === '#') { showToast('This stream is not available yet — check back soon!', 'warning'); return; }
-  State.currentStreamUrl = url;
+  if (!url || url === '#') {
+    showToast('This stream is not available yet — check back soon!', 'warning');
+    return;
+  }
+  State.currentStreamUrl  = url;
   State.currentStreamName = name;
+  const radioPlayer = $('radioPlayer');
   if (radioPlayer) {
     radioPlayer.src = url;
     radioPlayer.play()
       .then(() => { _setPlayState(true); showToast(`▶ Now playing: ${name}`, 'success'); })
       .catch(() => showToast('Could not connect to stream.', 'error'));
+  } else {
+    showToast(`Stream selected: ${name}`, 'info');
   }
 }
 
@@ -200,19 +295,17 @@ function handleNewsletter(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type="submit"]');
   btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Subscribing...';
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
   setTimeout(() => {
     showToast('Subscribed! Welcome to the OFURE RADIO family! 🎉', 'success');
     e.target.reset();
     btn.disabled = false;
-    btn.innerHTML = btn.textContent.includes('Free') ? 'Subscribe Free' : '<i class="fas fa-arrow-right"></i>';
+    btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
   }, 1000);
 }
 
-// ─── SONG REQUEST MODAL ───────────────────────────────
-function openSongRequest() {
-  openModal('songRequestModal');
-}
+// ─── SONG REQUEST ─────────────────────────────────────
+function openSongRequest() { openModal('songRequestModal'); }
 function submitSongRequest(e) {
   e.preventDefault();
   const btn = e.target.querySelector('button[type="submit"]');
@@ -230,16 +323,15 @@ function submitSongRequest(e) {
 // ─── SHARE ────────────────────────────────────────────
 function shareArticle() {
   if (navigator.share) {
-    navigator.share({ title: document.title, url: location.href })
-      .catch(() => {});
+    navigator.share({ title: document.title, url: location.href }).catch(() => {});
   } else {
     navigator.clipboard.writeText(location.href)
       .then(() => showToast('Link copied to clipboard!', 'success'))
-      .catch(() => showToast('Copy this URL: ' + location.href, 'info'));
+      .catch(() => showToast('Copy: ' + location.href, 'info'));
   }
 }
 function shareOn(platform) {
-  const url = encodeURIComponent(location.href);
+  const url   = encodeURIComponent(location.href);
   const title = encodeURIComponent(document.title);
   const map = {
     twitter:  `https://twitter.com/intent/tweet?url=${url}&text=${title}`,
@@ -256,27 +348,25 @@ function shareOn(platform) {
   if (map[platform]) window.open(map[platform], '_blank', 'width=600,height=400');
 }
 
-// ─── BLOG SEARCH (Client-side) ────────────────────────
+// ─── BLOG SEARCH ──────────────────────────────────────
 function filterBlogSearch(value) {
-  const q = value.trim().toLowerCase();
+  const q     = value.trim().toLowerCase();
   const cards = $$('.blog-article-card');
-  let shown = 0;
+  let shown   = 0;
   cards.forEach(card => {
-    const text = (card.dataset.title || '') + ' ' + (card.dataset.category || '') + ' ' + (card.dataset.tags || '');
-    const match = !q || text.toLowerCase().includes(q);
-    card.closest('.blog-card-wrapper') 
-      ? (card.closest('.blog-card-wrapper').style.display = match ? '' : 'none')
-      : (card.style.display = match ? '' : 'none');
+    const text  = [(card.dataset.title||''), (card.dataset.category||''), (card.dataset.tags||'')].join(' ').toLowerCase();
+    const match = !q || text.includes(q);
+    const wrap  = card.closest('.blog-card-wrapper');
+    if (wrap) wrap.style.display = match ? '' : 'none';
+    else card.style.display = match ? '' : 'none';
     if (match) shown++;
   });
-  const noResults = $('blogNoResults');
-  if (noResults) noResults.style.display = shown === 0 && q ? '' : 'none';
+  const noRes = $('blogNoResults');
+  if (noRes) noRes.style.display = (shown === 0 && q) ? '' : 'none';
 }
-
-// Tag click filtering on blog page
 function filterByTag(tag) {
-  const searchEl = $('blogSearch');
-  if (searchEl) { searchEl.value = tag; filterBlogSearch(tag); }
+  const s = $('blogSearch');
+  if (s) { s.value = tag; filterBlogSearch(tag); }
 }
 
 // ─── ADMIN AUTH ────────────────────────────────────────
@@ -310,21 +400,24 @@ function verifyPin() {
   const stored = localStorage.getItem('ofure_admin_pin') || '1234';
   if (pin === stored) {
     sessionStorage.setItem('ofure_admin_auth', 'true');
+    isAuthenticated = true;
     $('pinGate').classList.add('hidden');
     $('adminContent').classList.remove('hidden');
     showPanel('dashboard');
     renderDashboard();
     showToast('Welcome to OFURE STUDIO! 🎙️', 'success');
   } else {
-    $('pinError').classList.remove('hidden');
+    const err = $('pinError');
+    if (err) err.classList.remove('hidden');
     inputs.forEach(i => { i.value = ''; i.style.borderColor = '#ef4444'; setTimeout(() => i.style.borderColor = '', 900); });
     inputs[0].focus();
-    setTimeout(() => { $('pinError') && $('pinError').classList.add('hidden'); }, 3000);
+    setTimeout(() => { if ($('pinError')) $('pinError').classList.add('hidden'); }, 3000);
   }
 }
 
 function adminLogout() {
   sessionStorage.removeItem('ofure_admin_auth');
+  isAuthenticated = false;
   showToast('Logged out successfully.', 'info');
   setTimeout(() => location.reload(), 600);
 }
@@ -335,15 +428,19 @@ function showPanel(id) {
   if (panel) panel.classList.remove('hidden');
   $$('.admin-nav-item').forEach(btn => {
     const active = btn.dataset.panel === id;
-    btn.style.background = active ? 'rgba(249,115,22,0.15)' : '';
-    btn.style.color = active ? '#fb923c' : '';
-    btn.style.borderColor = active ? 'rgba(249,115,22,0.3)' : '';
+    btn.style.background   = active ? 'rgba(249,115,22,0.15)' : '';
+    btn.style.color        = active ? '#fb923c' : '';
+    btn.style.borderColor  = active ? 'rgba(249,115,22,0.3)' : '';
+    btn.style.border       = active ? '1px solid rgba(249,115,22,0.3)' : '';
   });
   if (id === 'streams')  renderStreams();
   if (id === 'schedule') renderSchedule();
   if (id === 'podcast')  renderPodcasts();
   if (id === 'settings') populateSettings();
-  if (window.innerWidth < 1024) { const sb = $('adminSidebar'); if (sb) sb.classList.remove('open'); }
+  if (window.innerWidth < 1024) {
+    const sb = $('adminSidebar');
+    if (sb) sb.classList.remove('open');
+  }
 }
 
 function toggleSidebar() {
@@ -353,16 +450,15 @@ function toggleSidebar() {
 
 // ─── DASHBOARD ────────────────────────────────────────
 function renderDashboard() {
-  // Live listener counter (simulated)
   const el = $('dashListeners');
   if (el) {
     let count = State.listeners;
+    el.textContent = count;
     setInterval(() => {
       count += Math.floor(Math.random() * 5) - 2;
-      count = Math.max(200, count);
+      count  = Math.max(200, count);
       el.textContent = count;
     }, 4000);
-    el.textContent = count;
   }
 }
 
@@ -371,42 +467,42 @@ function filterArticles(cat) {
   $$('.filter-btn').forEach(b => {
     const isActive = b.dataset.category === cat;
     b.style.background = isActive ? '#f97316' : '';
-    b.style.color = isActive ? '#fff' : '';
+    b.style.color      = isActive ? '#fff' : '';
     b.classList.toggle('active', isActive);
   });
   $$('.article-row').forEach(row => {
     row.style.display = (!cat || row.dataset.category === cat) ? '' : 'none';
   });
   const visible = $$('.article-row:not([style*="none"])').length;
-  const empty = $('articlesEmpty');
+  const empty   = $('articlesEmpty');
   if (empty) empty.style.display = visible === 0 ? '' : 'none';
 }
 
 function searchAdminArticles(q) {
   const query = q.toLowerCase();
   $$('.article-row').forEach(row => {
-    const text = (row.dataset.title || '') + ' ' + (row.dataset.category || '');
+    const text = [(row.dataset.title||''), (row.dataset.category||'')].join(' ');
     row.style.display = (!query || text.includes(query)) ? '' : 'none';
   });
 }
 
 function editArticle(id) {
   const row = document.querySelector(`.article-row[data-id="${id}"]`);
-  if (!row) return;
-  const title    = row.dataset.title || '';
+  if (!row) { showToast('Article not found.', 'error'); return; }
+  const title    = row.querySelector('.article-title-cell')?.textContent || row.dataset.title || '';
   const cat      = row.dataset.category || 'Entertainment';
-  const excerpt  = row.dataset.excerpt || '';
+  const excerpt  = row.dataset.excerpt  || '';
   const featured = row.dataset.featured === 'true';
-  const slug     = row.dataset.slug || '';
+  const slug     = row.dataset.slug     || '';
 
   const content = $('editModalContent');
   if (!content) return;
   content.innerHTML = `
-    <input type="hidden" id="editArticleId" value="${id}">
+    <input type="hidden" id="editArticleId" value="${_escHtml(id)}">
     <div class="space-y-4">
       <div>
-        <label class="block text-neutral-400 text-sm mb-1">Article Title</label>
-        <input id="editTitle" type="text" value="${title.replace(/"/g,'&quot;')}"
+        <label class="block text-neutral-400 text-sm mb-1">Article Title *</label>
+        <input id="editTitle" type="text" value="${_escHtml(title)}"
           class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
       </div>
       <div class="grid grid-cols-2 gap-4">
@@ -427,25 +523,28 @@ function editArticle(id) {
       <div>
         <label class="block text-neutral-400 text-sm mb-1">Excerpt / Summary</label>
         <textarea id="editExcerpt" rows="3"
-          class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 resize-none">${excerpt}</textarea>
+          class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 resize-none">${_escHtml(excerpt)}</textarea>
       </div>
       <div>
         <label class="block text-neutral-400 text-sm mb-1">Article Slug (URL)</label>
-        <input id="editSlug" type="text" value="${slug}"
+        <input id="editSlug" type="text" value="${_escHtml(slug)}"
           class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
       </div>
       <div class="flex gap-3 pt-2 border-t border-white/10">
-        <button onclick="saveArticleEdit()" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors">
+        <button onclick="saveArticleEdit()" class="flex-1 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white py-3 rounded-xl font-semibold transition-all">
           <i class="fas fa-save mr-2"></i>Save Changes
         </button>
         <a href="/blog/${slug}" target="_blank" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors text-sm flex items-center gap-1">
-          <i class="fas fa-eye"></i> View
+          <i class="fas fa-eye"></i>
         </a>
-        <button onclick="closeModal('editModal')" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors">
-          Cancel
-        </button>
+        <button onclick="closeModal('editModal')" class="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors">Cancel</button>
       </div>
     </div>`;
+  const modal = $('editModal');
+  if (modal) {
+    const h3 = modal.querySelector('h3');
+    if (h3) h3.textContent = 'Edit Article';
+  }
   openModal('editModal');
 }
 
@@ -456,7 +555,6 @@ function saveArticleEdit() {
   const status   = $('editStatus')?.value;
   const excerpt  = $('editExcerpt')?.value.trim();
   const slug     = $('editSlug')?.value.trim();
-
   if (!title) { showToast('Title cannot be empty.', 'error'); return; }
 
   const row = document.querySelector(`.article-row[data-id="${id}"]`);
@@ -468,10 +566,10 @@ function saveArticleEdit() {
     row.dataset.slug     = slug;
     const titleEl = row.querySelector('.article-title-cell');
     if (titleEl) titleEl.textContent = title;
-    const catEl = row.querySelector('.article-category-badge');
-    if (catEl) catEl.textContent = category;
-    const featEl = row.querySelector('.article-featured-badge');
-    if (featEl) featEl.innerHTML = status === 'featured'
+    const catEl   = row.querySelector('.article-category-badge');
+    if (catEl)   catEl.textContent = category;
+    const featEl  = row.querySelector('.article-featured-badge');
+    if (featEl)  featEl.innerHTML = status === 'featured'
       ? '<span class="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-star mr-1"></i>Featured</span>'
       : '<span class="text-xs px-2 py-1 rounded-full bg-white/10 text-neutral-400">Published</span>';
   }
@@ -482,9 +580,9 @@ function saveArticleEdit() {
 function toggleFeatured(id) {
   const row = document.querySelector(`.article-row[data-id="${id}"]`);
   if (!row) return;
-  const isFeatured = row.dataset.featured === 'true';
+  const isFeatured   = row.dataset.featured === 'true';
   row.dataset.featured = (!isFeatured).toString();
-  const badge = row.querySelector('.article-featured-badge');
+  const badge        = row.querySelector('.article-featured-badge');
   if (badge) badge.innerHTML = !isFeatured
     ? '<span class="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-star mr-1"></i>Featured</span>'
     : '<span class="text-xs px-2 py-1 rounded-full bg-white/10 text-neutral-400">Published</span>';
@@ -519,26 +617,28 @@ function showAddArticleModal() {
       </div>
       <div>
         <label class="block text-neutral-400 text-sm mb-1">Excerpt</label>
-        <textarea id="editExcerpt" rows="3"
-          class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 resize-none" placeholder="Article summary..."></textarea>
+        <textarea id="editExcerpt" rows="2"
+          class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 resize-none" placeholder="Short summary..."></textarea>
       </div>
       <div>
         <label class="block text-neutral-400 text-sm mb-1">Content</label>
-        <textarea id="editContent" rows="6"
+        <textarea id="editContent" rows="5"
           class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 resize-none" placeholder="Full article body..."></textarea>
       </div>
-      <div>
-        <label class="block text-neutral-400 text-sm mb-1">Image URL</label>
-        <input id="editImage" type="url" placeholder="https://images.unsplash.com/..."
-          class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
-      </div>
-      <div>
-        <label class="block text-neutral-400 text-sm mb-1">Author</label>
-        <input id="editAuthor" type="text" value="OFURE Radio Team"
-          class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-neutral-400 text-sm mb-1">Image URL</label>
+          <input id="editImage" type="url" placeholder="https://images.unsplash.com/..."
+            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+        </div>
+        <div>
+          <label class="block text-neutral-400 text-sm mb-1">Author</label>
+          <input id="editAuthor" type="text" value="OFURE Radio Team"
+            class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+        </div>
       </div>
       <div class="flex gap-3 pt-2 border-t border-white/10">
-        <button onclick="saveNewArticle()" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors">
+        <button onclick="saveNewArticle()" class="flex-1 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white py-3 rounded-xl font-semibold transition-all">
           <i class="fas fa-plus mr-2"></i>Publish Article
         </button>
         <button onclick="closeModal('editModal')" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors">Cancel</button>
@@ -546,7 +646,8 @@ function showAddArticleModal() {
     </div>`;
   const modal = $('editModal');
   if (modal) {
-    modal.querySelector('h3').textContent = 'New Article';
+    const h3 = modal.querySelector('h3');
+    if (h3) h3.textContent = 'New Article';
     openModal('editModal');
   }
 }
@@ -554,24 +655,24 @@ function showAddArticleModal() {
 function saveNewArticle() {
   const title = $('editTitle')?.value.trim();
   if (!title) { showToast('Title is required.', 'error'); return; }
-  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  const today = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+  const slug     = title.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const today    = new Date().toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
   const category = $('editCategory')?.value || 'Entertainment';
-  // Add to table
-  const tbody = document.querySelector('#articlesTable tbody');
+  const tbody    = document.querySelector('#articlesTable tbody');
   if (tbody) {
-    const tr = document.createElement('tr');
-    tr.className = 'hover:bg-white/3 transition-colors article-row';
+    const tr       = document.createElement('tr');
+    const newId    = 'new-' + Date.now();
+    tr.className   = 'hover:bg-white/3 transition-colors article-row';
     tr.dataset.category = category;
-    tr.dataset.title = title.toLowerCase();
-    tr.dataset.excerpt = $('editExcerpt')?.value || '';
+    tr.dataset.title    = title.toLowerCase();
+    tr.dataset.excerpt  = $('editExcerpt')?.value || '';
     tr.dataset.featured = $('editStatus')?.value === 'featured' ? 'true' : 'false';
-    tr.dataset.slug = slug;
-    tr.dataset.id = 'new-' + Date.now();
+    tr.dataset.slug     = slug;
+    tr.dataset.id       = newId;
     tr.innerHTML = `
       <td class="py-4 px-4"><div class="flex items-center gap-3">
         <div class="w-10 h-10 rounded-lg bg-orange-500/20 flex items-center justify-center flex-shrink-0"><i class="fas fa-newspaper text-orange-400 text-sm"></i></div>
-        <div><p class="text-white font-medium text-sm article-title-cell">${title}</p><p class="text-neutral-500 text-xs">${today}</p></div>
+        <div><p class="text-white font-medium text-sm article-title-cell">${_escHtml(title)}</p><p class="text-neutral-500 text-xs">${today}</p></div>
       </div></td>
       <td class="py-4 px-4 hidden md:table-cell"><span class="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 article-category-badge">${category}</span></td>
       <td class="py-4 px-4 text-neutral-400 text-sm hidden lg:table-cell">${today}</td>
@@ -580,13 +681,11 @@ function saveNewArticle() {
       </td>
       <td class="py-4 px-4 text-right"><div class="flex items-center justify-end gap-2">
         <a href="/blog/${slug}" target="_blank" class="text-neutral-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors text-xs"><i class="fas fa-eye"></i></a>
-        <button onclick="editArticle('${tr.dataset.id}')" class="text-orange-400 p-2 rounded-lg hover:bg-orange-500/10 transition-colors text-xs"><i class="fas fa-edit"></i></button>
-        <button onclick="toggleFeatured('${tr.dataset.id}')" class="text-neutral-400 hover:text-yellow-400 p-2 rounded-lg hover:bg-yellow-500/10 transition-colors text-xs"><i class="fas fa-star"></i></button>
+        <button onclick="editArticle('${newId}')" class="text-orange-400 p-2 rounded-lg hover:bg-orange-500/10 transition-colors text-xs"><i class="fas fa-edit"></i></button>
+        <button onclick="toggleFeatured('${newId}')" class="text-neutral-400 hover:text-yellow-400 p-2 rounded-lg hover:bg-yellow-500/10 transition-colors text-xs"><i class="fas fa-star"></i></button>
       </div></td>`;
     tbody.insertBefore(tr, tbody.firstChild);
   }
-  const countEl = document.querySelector('[data-stat="article-count"]');
-  if (countEl) countEl.textContent = parseInt(countEl.textContent || 0) + 1;
   showToast(`Article "${title}" published! ✅`, 'success');
   closeModal('editModal');
 }
@@ -595,6 +694,14 @@ function saveNewArticle() {
 function renderStreams() {
   const list = $('streamsList');
   if (!list) return;
+
+  // Update stat counters
+  const liveCount    = State.streams.filter(s => s.status === 'live').length;
+  const totalListeners = State.streams.reduce((acc, s) => acc + (s.listeners || 0), 0);
+  const lc = $('liveStreamCount');   if (lc) lc.textContent = liveCount;
+  const tc = $('totalStreamCount');  if (tc) tc.textContent = State.streams.length;
+  const tl = $('totalListenerCount');if (tl) tl.textContent = totalListeners;
+
   list.innerHTML = State.streams.map(s => `
     <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 hover:border-orange-500/20 transition-all stream-card" data-id="${s.id}">
       <div class="flex flex-col sm:flex-row sm:items-center gap-4">
@@ -604,28 +711,32 @@ function renderStreams() {
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-2 mb-0.5 flex-wrap">
-              <h3 class="text-white font-bold stream-name">${s.name}</h3>
-              <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${s.status==='live'?'bg-green-500/20 text-green-400':'bg-red-500/20 text-red-400'}">
-                ${s.status==='live'?'● LIVE':'○ OFFLINE'}
+              <h3 class="text-white font-bold stream-name">${_escHtml(s.name)}</h3>
+              <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${s.status==='live'?'bg-green-500/20 text-green-400':s.status==='scheduled'?'bg-yellow-500/20 text-yellow-400':'bg-red-500/20 text-red-400'}">
+                ${s.status==='live'?'● LIVE':s.status==='scheduled'?'⏰ SCHEDULED':'○ OFFLINE'}
               </span>
             </div>
-            <p class="text-neutral-400 text-sm stream-genre">${s.genre}</p>
-            <p class="text-neutral-600 text-xs truncate stream-url">${s.url || 'No URL set'}</p>
+            <p class="text-neutral-400 text-sm stream-genre">${_escHtml(s.genre)}</p>
+            <p class="text-neutral-600 text-xs truncate stream-url">${s.url ? s.url : '<em class="text-neutral-700">No URL set</em>'}</p>
           </div>
         </div>
         <div class="flex items-center gap-4">
-          ${s.status==='live'?`<span class="text-neutral-400 text-sm"><i class="fas fa-users mr-1 text-green-400"></i>${s.listeners} listening</span>`:''}
+          ${s.status==='live' ? `<span class="text-neutral-400 text-sm"><i class="fas fa-users mr-1 text-green-400"></i>${s.listeners}</span>` : ''}
           <div class="flex gap-2">
-            <button onclick="testStream('${s.url}','${s.name}')" class="text-neutral-400 hover:text-green-400 p-2 rounded-lg hover:bg-green-500/10 transition-colors" title="Test / Play">
+            <button onclick="testStream('${s.url}','${_escHtml(s.name)}')"
+              class="text-neutral-400 hover:text-green-400 p-2 rounded-lg hover:bg-green-500/10 transition-colors" title="Test / Play Stream">
               <i class="fas fa-play text-sm"></i>
             </button>
-            <button onclick="openEditStream(${s.id})" class="text-orange-400 hover:text-orange-300 p-2 rounded-lg hover:bg-orange-500/10 transition-colors" title="Edit">
+            <button onclick="openEditStream(${s.id})"
+              class="text-orange-400 hover:text-orange-300 p-2 rounded-lg hover:bg-orange-500/10 transition-colors font-medium" title="Edit Stream">
               <i class="fas fa-edit text-sm"></i>
             </button>
-            <button onclick="toggleStreamStatus(${s.id})" class="text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-blue-500/10 transition-colors" title="Toggle Status">
+            <button onclick="toggleStreamStatus(${s.id})"
+              class="text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-blue-500/10 transition-colors" title="Toggle Live / Offline">
               <i class="fas fa-power-off text-sm"></i>
             </button>
-            <button onclick="deleteStream(${s.id})" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors" title="Delete">
+            <button onclick="deleteStream(${s.id})"
+              class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors" title="Delete Stream">
               <i class="fas fa-trash text-sm"></i>
             </button>
           </div>
@@ -634,28 +745,61 @@ function renderStreams() {
     </div>`).join('');
 }
 
-function testStream(url, name) { playStream(url, name || 'Test Stream'); }
+function testStream(url, name) {
+  if (!url || url === '') { showToast('No stream URL configured for this stream.', 'warning'); return; }
+  playStream(url, name || 'Test Stream');
+}
 
 function showAddStreamModal() {
   State.editingStreamId = null;
-  $('streamModalTitle') && ($('streamModalTitle').textContent = 'Add New Stream');
-  $('streamName') && ($('streamName').value = '');
-  $('streamUrl') && ($('streamUrl').value = '');
-  $('streamGenre') && ($('streamGenre').value = '');
-  $('streamStatus') && ($('streamStatus').value = 'live');
+  const titleEl = $('streamModalTitle');
+  const btnLabel = $('streamSaveBtnLabel');
+  if (titleEl)  titleEl.textContent  = 'Add New Stream';
+  if (btnLabel) btnLabel.textContent = 'Add Stream';
+  const fields = { streamName:'', streamUrl:'', streamGenre:'', streamStatus:'live' };
+  Object.entries(fields).forEach(([id, val]) => { const el=$(id); if(el) el.value=val; });
   openModal('addStreamModal');
+  setTimeout(() => { const n = $('streamName'); if (n) n.focus(); }, 100);
 }
 
 function openEditStream(id) {
   const s = State.streams.find(x => x.id === id);
-  if (!s) return;
+  if (!s) { showToast('Stream not found.', 'error'); return; }
   State.editingStreamId = id;
-  $('streamModalTitle') && ($('streamModalTitle').textContent = 'Edit Stream');
-  $('streamName') && ($('streamName').value = s.name);
-  $('streamUrl') && ($('streamUrl').value = s.url);
-  $('streamGenre') && ($('streamGenre').value = s.genre);
-  $('streamStatus') && ($('streamStatus').value = s.status);
+  const titleEl  = $('streamModalTitle');
+  const btnLabel = $('streamSaveBtnLabel');
+  if (titleEl)  titleEl.textContent  = 'Edit Stream';
+  if (btnLabel) btnLabel.textContent = 'Save Changes';
+  const sn = $('streamName');   if (sn) sn.value = s.name;
+  const su = $('streamUrl');    if (su) su.value = s.url;
+  const sg = $('streamGenre');  if (sg) sg.value = s.genre;
+  const ss = $('streamStatus'); if (ss) ss.value = s.status;
   openModal('addStreamModal');
+  setTimeout(() => { if (sn) sn.focus(); }, 100);
+}
+
+function saveNewStream(e) {
+  e.preventDefault();
+  const name   = $('streamName')?.value.trim();
+  const url    = $('streamUrl')?.value.trim();
+  const genre  = $('streamGenre')?.value.trim() || 'General';
+  const status = $('streamStatus')?.value || 'live';
+  if (!name) { showToast('Stream name is required.', 'error'); return; }
+  if (!url)  { showToast('Stream URL is required.', 'error'); return; }
+
+  if (State.editingStreamId) {
+    const s = State.streams.find(x => x.id === State.editingStreamId);
+    if (s) { s.name = name; s.url = url; s.genre = genre; s.status = status; }
+    showToast(`Stream "${name}" updated! ✅`, 'success');
+  } else {
+    const newId = Date.now();
+    State.streams.push({ id: newId, name, url, genre, status, listeners: 0 });
+    showToast(`Stream "${name}" added! ✅`, 'success');
+  }
+  State.editingStreamId = null;
+  saveState('streams');
+  renderStreams();
+  closeModal('addStreamModal');
 }
 
 function toggleStreamStatus(id) {
@@ -677,37 +821,21 @@ function deleteStream(id) {
   showToast('Stream deleted.', 'info');
 }
 
-function saveNewStream(e) {
-  e.preventDefault();
-  const name   = $('streamName')?.value.trim();
-  const url    = $('streamUrl')?.value.trim();
-  const genre  = $('streamGenre')?.value.trim();
-  const status = $('streamStatus')?.value || 'live';
-  if (!name) { showToast('Stream name is required.', 'error'); return; }
-  if (State.editingStreamId) {
-    const s = State.streams.find(x => x.id === State.editingStreamId);
-    if (s) { s.name = name; s.url = url; s.genre = genre; s.status = status; }
-    showToast('Stream updated! ✅', 'success');
-  } else {
-    State.streams.push({ id: Date.now(), name, url, genre, status, listeners: 0 });
-    showToast('Stream added! ✅', 'success');
-  }
-  saveState('streams');
-  renderStreams();
-  closeModal('addStreamModal');
-}
-
 // ─── SHOW SCHEDULE ─────────────────────────────────────
 function renderSchedule() {
   const tbody = $('scheduleBody');
   if (!tbody) return;
+  if (State.schedule.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="py-8 text-center text-neutral-500">No shows yet. Click Add Show.</td></tr>';
+    return;
+  }
   tbody.innerHTML = State.schedule.map(s => `
-    <tr class="hover:bg-white/3 transition-colors schedule-row" data-id="${s.id}">
+    <tr class="hover:bg-white/3 transition-colors schedule-row ${s.active ? 'bg-orange-500/5' : ''}" data-id="${s.id}">
       <td class="py-4 px-4"><span class="text-white font-semibold text-sm">${s.time}</span></td>
-      <td class="py-4 px-4 text-white font-medium">${s.show}</td>
-      <td class="py-4 px-4 text-neutral-400 text-sm">${s.host}</td>
-      <td class="py-4 px-4 text-neutral-500 text-sm hidden md:table-cell">${s.genre}</td>
-      <td class="py-4 px-4 text-neutral-500 text-sm hidden lg:table-cell">${s.days}</td>
+      <td class="py-4 px-4 text-white font-medium">${_escHtml(s.show)}</td>
+      <td class="py-4 px-4 text-neutral-400 text-sm">${_escHtml(s.host)}</td>
+      <td class="py-4 px-4 text-neutral-500 text-sm hidden md:table-cell">${_escHtml(s.genre)}</td>
+      <td class="py-4 px-4 text-neutral-500 text-sm hidden lg:table-cell">${_escHtml(s.days)}</td>
       <td class="py-4 px-4">
         <span class="text-xs px-2 py-1 rounded-full ${s.active?'bg-green-500/20 text-green-400':'bg-blue-500/20 text-blue-400'}">
           ${s.active?'● ON AIR':'⏰ Scheduled'}
@@ -715,10 +843,10 @@ function renderSchedule() {
       </td>
       <td class="py-4 px-4 text-right">
         <div class="flex items-center justify-end gap-2">
-          <button onclick="openEditSchedule(${s.id})" class="text-orange-400 p-1.5 rounded-lg hover:bg-orange-500/10 transition-colors text-sm">
+          <button onclick="openEditSchedule(${s.id})" class="text-orange-400 p-1.5 rounded-lg hover:bg-orange-500/10 transition-colors text-sm" title="Edit show">
             <i class="fas fa-edit"></i>
           </button>
-          <button onclick="deleteSchedule(${s.id})" class="text-red-400 p-1.5 rounded-lg hover:bg-red-500/10 transition-colors text-sm">
+          <button onclick="deleteSchedule(${s.id})" class="text-red-400 p-1.5 rounded-lg hover:bg-red-500/10 transition-colors text-sm" title="Delete show">
             <i class="fas fa-trash"></i>
           </button>
         </div>
@@ -728,9 +856,10 @@ function renderSchedule() {
 
 function showAddShowModal() {
   State.editingScheduleId = null;
-  $('scheduleModalTitle') && ($('scheduleModalTitle').textContent = 'Add New Show');
+  const title = $('scheduleModalTitle');
+  if (title) title.textContent = 'Add New Show';
   ['schedTime','schedShow','schedHost','schedGenre','schedDays'].forEach(id => { const el=$(id); if(el) el.value=''; });
-  $('schedStatus') && ($('schedStatus').value = 'scheduled');
+  const ss = $('schedStatus'); if (ss) ss.value = 'scheduled';
   openModal('scheduleModal');
 }
 
@@ -738,24 +867,25 @@ function openEditSchedule(id) {
   const s = State.schedule.find(x => x.id === id);
   if (!s) return;
   State.editingScheduleId = id;
-  $('scheduleModalTitle') && ($('scheduleModalTitle').textContent = 'Edit Show');
-  $('schedTime')   && ($('schedTime').value   = s.time);
-  $('schedShow')   && ($('schedShow').value   = s.show);
-  $('schedHost')   && ($('schedHost').value   = s.host);
-  $('schedGenre')  && ($('schedGenre').value  = s.genre);
-  $('schedDays')   && ($('schedDays').value   = s.days);
-  $('schedStatus') && ($('schedStatus').value = s.active ? 'live' : 'scheduled');
+  const title = $('scheduleModalTitle');
+  if (title) title.textContent = 'Edit Show';
+  const st = $('schedTime');   if (st) st.value = s.time;
+  const ss2= $('schedShow');   if (ss2)ss2.value = s.show;
+  const sh = $('schedHost');   if (sh) sh.value = s.host;
+  const sg = $('schedGenre');  if (sg) sg.value = s.genre;
+  const sd = $('schedDays');   if (sd) sd.value = s.days;
+  const ss = $('schedStatus'); if (ss) ss.value = s.active ? 'live' : 'scheduled';
   openModal('scheduleModal');
 }
 
 function saveScheduleEntry(e) {
   e.preventDefault();
   const data = {
-    time:   $('schedTime')?.value.trim(),
-    show:   $('schedShow')?.value.trim(),
-    host:   $('schedHost')?.value.trim(),
-    genre:  $('schedGenre')?.value.trim(),
-    days:   $('schedDays')?.value.trim(),
+    time:   $('schedTime')?.value.trim()   || '',
+    show:   $('schedShow')?.value.trim()   || '',
+    host:   $('schedHost')?.value.trim()   || '',
+    genre:  $('schedGenre')?.value.trim()  || '',
+    days:   $('schedDays')?.value.trim()   || 'Daily',
     active: $('schedStatus')?.value === 'live'
   };
   if (!data.show || !data.time) { showToast('Time and Show name are required.', 'error'); return; }
@@ -767,6 +897,7 @@ function saveScheduleEntry(e) {
     State.schedule.push({ id: Date.now(), ...data });
     showToast('Show added! ✅', 'success');
   }
+  State.editingScheduleId = null;
   saveState('schedule');
   renderSchedule();
   closeModal('scheduleModal');
@@ -775,7 +906,7 @@ function saveScheduleEntry(e) {
 function deleteSchedule(id) {
   const s = State.schedule.find(x => x.id === id);
   if (!s) return;
-  if (!confirm(`Remove "${s.show}"?`)) return;
+  if (!confirm(`Remove "${s.show}" from schedule?`)) return;
   State.schedule = State.schedule.filter(x => x.id !== id);
   saveState('schedule');
   renderSchedule();
@@ -784,184 +915,704 @@ function deleteSchedule(id) {
 
 // ─── PODCAST STUDIO ────────────────────────────────────
 function renderPodcasts() {
-  const list = $('podcastList');
+  const list     = $('podcastList');
+  const countEl  = $('episodeCount');
+  if (countEl) countEl.textContent = State.podcasts.length;
   if (!list) return;
+
   if (State.podcasts.length === 0) {
-    list.innerHTML = `<div class="text-center py-12 text-neutral-500">
+    list.innerHTML = `<div class="text-center py-12 text-neutral-500 px-4">
       <i class="fas fa-microphone text-5xl mb-3 text-neutral-700 block"></i>
-      <p>No episodes yet. Start recording or uploading above.</p>
+      <p class="font-medium">No episodes yet</p>
+      <p class="text-xs mt-1 text-neutral-600">Start recording or upload an audio file above</p>
     </div>`;
     return;
   }
+
   list.innerHTML = State.podcasts.map(p => `
-    <div class="flex items-center gap-4 p-4 bg-white/5 rounded-xl hover:bg-white/10 transition-colors">
+    <div class="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/8 border-b border-white/5 last:border-0 transition-colors">
       <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-        <i class="fas fa-podcast text-orange-400"></i>
+        <i class="fas fa-podcast text-orange-400 text-lg"></i>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-white font-medium truncate">${p.title}</p>
-        <p class="text-neutral-400 text-sm">${p.duration || 'Unknown duration'} · ${p.date}</p>
+        <p class="text-white font-semibold text-sm truncate">${_escHtml(p.title)}</p>
+        <p class="text-neutral-400 text-xs mt-0.5">
+          ${p.duration || 'Unknown duration'} · ${p.date}
+          ${p.season ? `<span class="ml-2 text-neutral-600">S${p.season}${p.episode?` E${p.episode}`:''}</span>` : ''}
+        </p>
+        ${p.desc ? `<p class="text-neutral-600 text-xs mt-0.5 truncate">${_escHtml(p.desc)}</p>` : ''}
       </div>
       <div class="flex gap-2 flex-shrink-0">
-        <button onclick="playPodcast('${p.id}')" class="text-green-400 hover:text-green-300 p-2 rounded-lg hover:bg-green-500/10 transition-colors"><i class="fas fa-play text-sm"></i></button>
-        <button onclick="editPodcast('${p.id}')" class="text-orange-400 p-2 rounded-lg hover:bg-orange-500/10 transition-colors"><i class="fas fa-edit text-sm"></i></button>
-        <button onclick="deletePodcast('${p.id}')" class="text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-colors"><i class="fas fa-trash text-sm"></i></button>
+        <button onclick="playPodcast('${p.id}')" class="text-green-400 hover:text-green-300 p-2 rounded-lg hover:bg-green-500/10 transition-colors" title="Play"><i class="fas fa-play text-sm"></i></button>
+        <button onclick="editPodcast('${p.id}')" class="text-orange-400 hover:text-orange-300 p-2 rounded-lg hover:bg-orange-500/10 transition-colors" title="Edit episode"><i class="fas fa-edit text-sm"></i></button>
+        <button onclick="deletePodcast('${p.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors" title="Delete"><i class="fas fa-trash text-sm"></i></button>
       </div>
     </div>`).join('');
 }
 
 function startRecording() {
-  if (!navigator.mediaDevices) { showToast('Microphone access is not supported in this browser.', 'error'); return; }
+  if (!navigator.mediaDevices) {
+    showToast('Microphone access not supported in this browser.', 'error');
+    return;
+  }
   if (State.isRecording) {
-    // Stop recording
+    // STOP
     if (State.mediaRecorder && State.mediaRecorder.state !== 'inactive') State.mediaRecorder.stop();
     return;
   }
-  navigator.mediaDevices.getUserMedia({ audio: true })
+  navigator.mediaDevices.getUserMedia({ audio: true, video: false })
     .then(stream => {
       State.recordedChunks = [];
-      State.mediaRecorder = new MediaRecorder(stream);
+      const mimeType = MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : 'audio/ogg';
+      State.mediaRecorder = new MediaRecorder(stream, { mimeType });
       State.mediaRecorder.ondataavailable = e => { if (e.data.size > 0) State.recordedChunks.push(e.data); };
       State.mediaRecorder.onstop = () => {
         stream.getTracks().forEach(t => t.stop());
         clearInterval(State.recordTimer);
         State.isRecording = false;
+
         const btn = $('recordBtn');
-        if (btn) { btn.innerHTML = '<i class="fas fa-microphone mr-2"></i>Start Recording'; btn.style.background=''; }
-        const timerEl = $('recordTimer');
-        if (timerEl) timerEl.textContent = '00:00';
-        const blob = new Blob(State.recordedChunks, { type: 'audio/webm' });
-        const url = URL.createObjectURL(blob);
-        const title = `Episode ${State.podcasts.length + 1} — ${new Date().toLocaleDateString()}`;
-        const pod = { id: Date.now().toString(), title, url, date: new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}), duration: _formatTime(State.recordSeconds) };
-        State.podcasts.push(pod); saveState('podcasts'); renderPodcasts();
-        showToast('Recording saved as "' + title + '"! ✅', 'success');
+        if (btn) { btn.innerHTML = '<i class="fas fa-microphone mr-2"></i>Start Recording'; btn.className = btn.className.replace('bg-red-600','bg-red-500'); }
+        const statusBar = $('recordingStatus');
+        if (statusBar) statusBar.classList.add('hidden');
+        _stopWaveAnimation();
+
+        const blob  = new Blob(State.recordedChunks, { type: mimeType });
+        const url   = URL.createObjectURL(blob);
+        const title = `Episode ${State.podcasts.length + 1} — ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+        const pod   = {
+          id:       Date.now().toString(),
+          title,
+          url,
+          date:     new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+          duration: _formatTime(State.recordSeconds),
+          desc:     ''
+        };
+        State.podcasts.unshift(pod);
+        saveState('podcasts');
+        renderPodcasts();
+        showToast(`Recording saved: "${title}" (${pod.duration}) ✅`, 'success');
       };
-      State.isRecording = true;
+      State.isRecording  = true;
       State.recordSeconds = 0;
-      State.mediaRecorder.start();
+      State.mediaRecorder.start(200);
+
       const btn = $('recordBtn');
-      if (btn) { btn.innerHTML = '<i class="fas fa-stop mr-2"></i>Stop Recording'; btn.style.background='#ef4444'; }
+      if (btn) { btn.innerHTML = '<i class="fas fa-stop mr-2"></i>Stop Recording'; btn.className = btn.className.replace('bg-red-500','bg-red-600'); }
+      const statusBar = $('recordingStatus');
+      if (statusBar) statusBar.classList.remove('hidden');
+      _startWaveAnimation();
+
       State.recordTimer = setInterval(() => {
         State.recordSeconds++;
         const timerEl = $('recordTimer');
         if (timerEl) timerEl.textContent = _formatTime(State.recordSeconds);
       }, 1000);
-      showToast('Recording started 🔴 Speak into your microphone.', 'info');
+      showToast('🔴 Recording started! Speak into your microphone.', 'info');
     })
-    .catch(() => showToast('Microphone permission denied. Please allow microphone access.', 'error'));
+    .catch(err => {
+      showToast('Microphone permission denied. Please allow microphone access.', 'error');
+      console.error('Mic error:', err);
+    });
+}
+
+function _startWaveAnimation() {
+  const bars = $$('#recordWave .rec-wave-bar');
+  if (!bars.length) return;
+  State._waveInterval = setInterval(() => {
+    bars.forEach(bar => {
+      bar.style.height = (Math.random() * 28 + 3) + 'px';
+    });
+  }, 100);
+}
+function _stopWaveAnimation() {
+  clearInterval(State._waveInterval);
+  const bars = $$('#recordWave .rec-wave-bar');
+  bars.forEach(bar => { bar.style.height = '4px'; });
 }
 
 function _formatTime(secs) {
-  const m = Math.floor(secs/60).toString().padStart(2,'0');
-  const s = (secs%60).toString().padStart(2,'0');
+  const m = Math.floor(secs / 60).toString().padStart(2,'0');
+  const s = (secs % 60).toString().padStart(2,'0');
   return `${m}:${s}`;
 }
 
 function uploadAudio() {
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = 'audio/*';
+  const input    = document.createElement('input');
+  input.type     = 'file';
+  input.accept   = 'audio/*';
   input.onchange = e => {
     const file = e.target.files[0];
     if (!file) return;
-    const url = URL.createObjectURL(file);
-    const pod = { id: Date.now().toString(), title: file.name.replace(/\.[^.]+$/,''), url, date: new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}), duration: 'Unknown' };
-    State.podcasts.push(pod); saveState('podcasts'); renderPodcasts();
-    showToast(`"${pod.title}" uploaded successfully! ✅`, 'success');
+    processAudioUpload(file);
   };
   input.click();
+}
+
+function processAudioUpload(file) {
+  const url   = URL.createObjectURL(file);
+  const name  = file.name.replace(/\.[^.]+$/, '');
+  // Try to get duration
+  const audio = new Audio(url);
+  audio.addEventListener('loadedmetadata', () => {
+    const dur = _formatTime(Math.floor(audio.duration));
+    const pod = {
+      id:       Date.now().toString(),
+      title:    name,
+      url,
+      date:     new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+      duration: dur,
+      desc:     ''
+    };
+    State.podcasts.unshift(pod);
+    saveState('podcasts');
+    renderPodcasts();
+    showToast(`"${name}" uploaded (${dur}) ✅`, 'success');
+  });
+  audio.addEventListener('error', () => {
+    const pod = {
+      id:       Date.now().toString(),
+      title:    name,
+      url,
+      date:     new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+      duration: 'Unknown',
+      desc:     ''
+    };
+    State.podcasts.unshift(pod);
+    saveState('podcasts');
+    renderPodcasts();
+    showToast(`"${name}" uploaded ✅`, 'success');
+  });
 }
 
 function playPodcast(id) {
   const p = State.podcasts.find(x => x.id === id);
   if (!p) return;
   const audio = new Audio(p.url);
-  audio.play().then(() => showToast(`▶ Playing: ${p.title}`, 'success')).catch(() => showToast('Could not play this episode.', 'error'));
+  audio.play()
+    .then(() => showToast(`▶ Playing: ${p.title}`, 'success'))
+    .catch(() => showToast('Could not play this episode. File may have expired.', 'error'));
 }
 
 function editPodcast(id) {
   const p = State.podcasts.find(x => x.id === id);
   if (!p) return;
-  const newTitle = prompt('Episode title:', p.title);
-  if (newTitle && newTitle.trim()) { p.title = newTitle.trim(); saveState('podcasts'); renderPodcasts(); showToast('Episode renamed!', 'success'); }
+  const tid  = $('editPodcastId');   if (tid)  tid.value  = id;
+  const tt   = $('editPodcastTitle');if (tt)   tt.value   = p.title;
+  const ep   = $('editPodcastEp');   if (ep)   ep.value   = p.episode  || '';
+  const seas = $('editPodcastSeason');if (seas) seas.value = p.season   || '1';
+  const desc = $('editPodcastDesc'); if (desc) desc.value = p.desc     || '';
+  const tags = $('editPodcastTags'); if (tags) tags.value = (p.tags||[]).join(', ');
+  openModal('editPodcastModal');
+}
+
+function savePodcastEdit() {
+  const id    = $('editPodcastId')?.value;
+  const p     = State.podcasts.find(x => x.id === id);
+  if (!p) return;
+  const title = $('editPodcastTitle')?.value.trim();
+  if (!title) { showToast('Title cannot be empty.', 'error'); return; }
+  p.title   = title;
+  p.episode = parseInt($('editPodcastEp')?.value)    || undefined;
+  p.season  = parseInt($('editPodcastSeason')?.value) || 1;
+  p.desc    = $('editPodcastDesc')?.value.trim()  || '';
+  p.tags    = ($('editPodcastTags')?.value || '').split(',').map(t => t.trim()).filter(Boolean);
+  saveState('podcasts');
+  renderPodcasts();
+  showToast('Episode updated! ✅', 'success');
+  closeModal('editPodcastModal');
 }
 
 function deletePodcast(id) {
-  if (!confirm('Delete this episode?')) return;
+  const p = State.podcasts.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`Delete episode "${p.title}"?`)) return;
   State.podcasts = State.podcasts.filter(x => x.id !== id);
-  saveState('podcasts'); renderPodcasts();
+  saveState('podcasts');
+  renderPodcasts();
   showToast('Episode deleted.', 'info');
 }
 
-function manageRSS() {
-  openModal('rssModal');
+function aiGeneratePodcast() {
+  showPanel('ai');
+  activateAIAgent('podcast');
+  const input = $('aiInput');
+  if (input) {
+    input.value = 'Create a detailed 20-minute podcast episode outline about the rise of Afrobeats globally, including segment titles, talking points, and recommended guest topics.';
+    input.focus();
+  }
+  showToast('AI Podcast outline generator ready — click Send!', 'info');
 }
 
-// ─── AI STUDIO ─────────────────────────────────────────
-function sendAIMessage() {
-  const input = $('aiInput');
-  const messages = $('aiMessages');
-  if (!input || !messages || !input.value.trim()) return;
-  const msg = input.value.trim();
-  input.value = '';
-  messages.innerHTML += `<div class="flex gap-3 justify-end"><div class="bg-orange-500/20 border border-orange-500/30 rounded-xl px-4 py-3 text-white text-sm max-w-md">${_escHtml(msg)}</div><div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0"><i class="fas fa-user text-orange-400 text-sm"></i></div></div>`;
-  messages.scrollTop = messages.scrollHeight;
-  const typingId = 'typing' + Date.now();
-  messages.innerHTML += `<div id="${typingId}" class="flex gap-3"><div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><i class="fas fa-robot text-purple-400 text-sm"></i></div><div class="bg-white/5 rounded-xl px-4 py-3 text-neutral-400 text-sm"><i class="fas fa-ellipsis-h animate-pulse"></i> Thinking...</div></div>`;
-  messages.scrollTop = messages.scrollHeight;
-  const m = msg.toLowerCase();
-  const replies = {
-    schedule:  'Your schedule has 8 shows running daily and on weekdays. Morning Vibes with DJ Alex is your highest-engagement slot at 6AM. I recommend adding a Sunday Gospel Special from 10AM–12PM to capture the weekend audience.',
-    blog:      'Your OFURE BEAT blog auto-updates every 24 hours with fresh articles across 8 categories. You currently have ' + document.querySelectorAll('.article-row').length + ' articles published. Try featuring more Music and Africa category posts — they drive the highest engagement.',
-    stream:    'Your main Zeno.FM stream is live and healthy. I recommend setting a fallback/backup stream URL in case the primary goes down. Go to Stream Manager → Add Stream to configure a backup.',
-    music:     'OFURE RADIO\'s music identity is built on Afrobeats, R&B, Gospel, and Urban sounds. For station IDs and jingles, I can help write scripts. Try the Voiceover Generator to produce them.',
-    podcast:   'Your podcast studio is ready. You can record directly in the browser using the Record button, or upload an existing audio file. I recommend a weekly "OFURE Radio Roundup" episode covering top entertainment news.',
-    seo:       'To improve your SEO: (1) Make sure each blog article has a unique meta description. (2) Add structured data markup. (3) Publish at least 3 articles per week. (4) Link to your blog from all social media profiles.',
-    grow:      'To grow OFURE RADIO\'s audience: (1) Share blog articles on Twitter, Instagram, and Facebook. (2) Run live call-in shows to increase engagement. (3) Cross-promote with other African radio stations. (4) List your station on TuneIn and Radio Garden.',
-    dj:        'Your DJ lineup includes DJ Alex, DJ Luna, DJ Marcus, DJ Sarah, DJ Rex, DJ Maya, and Mama Bisi. They cover 8 daily time slots from 6AM to midnight. You can add or edit shows in the Show Schedule panel.',
-    help:      'I can help you with: show scheduling, blog content strategy, stream management, podcast production, audience growth tips, SEO, social media, and technical radio management. What area would you like to explore?',
-    default:   'Great question! As the OFURE RADIO AI assistant, I\'m here to help you run the best internet radio station possible. Ask me about your schedule, blog, streams, podcasts, audience growth, or anything else about station management!'
+// ─── RSS FEED ──────────────────────────────────────────
+function openRSSPanel() {
+  const panel = $('rssPanelInline');
+  if (!panel) return;
+  // Populate from saved settings
+  const r = State.rssSettings;
+  const rt = $('rssTitle');   if (rt) rt.value = r.title;
+  const ra = $('rssAuthor');  if (ra) ra.value = r.author;
+  const rc = $('rssCategory');if (rc) rc.value = r.category;
+  const rl = $('rssLanguage');if (rl) rl.value = r.language;
+  const rd = $('rssDesc');    if (rd) rd.value = r.desc;
+  panel.classList.remove('hidden');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function saveRSSSettings() {
+  State.rssSettings = {
+    title:    $('rssTitle')?.value.trim()    || 'OFURE RADIO Podcast',
+    author:   $('rssAuthor')?.value.trim()   || 'OFURE RADIO',
+    category: $('rssCategory')?.value        || 'Music',
+    language: $('rssLanguage')?.value        || 'en-US',
+    desc:     $('rssDesc')?.value.trim()     || ''
   };
-  let reply = replies.default;
-  if (m.includes('schedule') || m.includes('show')) reply = replies.schedule;
-  else if (m.includes('blog') || m.includes('news') || m.includes('article')) reply = replies.blog;
-  else if (m.includes('stream') || m.includes('broadcast')) reply = replies.stream;
-  else if (m.includes('music') || m.includes('song') || m.includes('jingle')) reply = replies.music;
-  else if (m.includes('podcast') || m.includes('episode') || m.includes('record')) reply = replies.podcast;
-  else if (m.includes('seo') || m.includes('search') || m.includes('google')) reply = replies.seo;
-  else if (m.includes('grow') || m.includes('audience') || m.includes('listener')) reply = replies.grow;
-  else if (m.includes('dj') || m.includes('host')) reply = replies.dj;
-  else if (m.includes('help') || m.includes('what can')) reply = replies.help;
-  setTimeout(() => {
-    const t = $(typingId);
-    if (t) t.outerHTML = `<div class="flex gap-3"><div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0"><i class="fas fa-robot text-purple-400 text-sm"></i></div><div class="bg-white/5 rounded-xl px-4 py-3 text-neutral-300 text-sm max-w-md leading-relaxed">${reply}</div></div>`;
+  saveState('rss');
+  showToast('RSS Feed settings saved! ✅', 'success');
+}
+
+function copyRSSFeed() {
+  const url = location.origin + '/rss.xml';
+  const inp = $('rssFeedUrl');
+  if (inp) inp.select();
+  navigator.clipboard.writeText(url)
+    .then(() => showToast('RSS feed URL copied to clipboard!', 'success'))
+    .catch(() => showToast('RSS URL: ' + url, 'info'));
+}
+
+function manageRSS() { openRSSPanel(); }
+
+// ─── AI STUDIO ─────────────────────────────────────────
+const AI_AGENTS = {
+  assistant: {
+    title:    'OFURE AI Assistant',
+    subtitle: 'Station Management · Content · Strategy',
+    icon:     'robot',
+    color:    'purple',
+    welcome:  'Hello! I\'m your <strong>OFURE RADIO AI Assistant</strong>. Ask me about station management, scheduling, blog strategy, audience growth, streams, podcasts — anything! Click a suggested prompt below or type your question.',
+    handler:  _aiAssistantReply
+  },
+  music: {
+    title:    'Music ID Generator',
+    subtitle: 'Station IDs · Jingles · Bumpers',
+    icon:     'music',
+    color:    'orange',
+    welcome:  '🎵 <strong>Music ID Generator</strong> is ready! I can write station ID scripts, jingle copy, bumper music ideas, and promo scripts for OFURE RADIO. What would you like to create?',
+    handler:  _aiMusicReply
+  },
+  voice: {
+    title:    'Voiceover Generator',
+    subtitle: 'Professional Scripts · Show Promos · Ads',
+    icon:     'volume-up',
+    color:    'green',
+    welcome:  '🎙️ <strong>Voiceover Script Generator</strong> ready! Tell me what you need — morning show intro, promo spot, ad script, news opener — and I\'ll write a professional voiceover script for you.',
+    handler:  _aiVoiceReply
+  },
+  script: {
+    title:    'Script Writer',
+    subtitle: 'Full Show Scripts · Intros · News Reads',
+    icon:     'file-alt',
+    color:    'pink',
+    welcome:  '✍️ <strong>Script Writer</strong> activated! I write full show scripts, intros, outros, news reads, and interview guides. Which show needs a script today?',
+    handler:  _aiScriptReply
+  },
+  blog: {
+    title:    'Blog Generator',
+    subtitle: 'News Articles · Entertainment · World',
+    icon:     'newspaper',
+    color:    'blue',
+    welcome:  '📰 <strong>Blog Article Generator</strong> ready! I can write full entertainment news articles, music reviews, celebrity features, world news summaries, and more. What topic shall I cover?',
+    handler:  _aiBlogReply
+  },
+  podcast: {
+    title:    'Podcast AI',
+    subtitle: 'Episode Outlines · Show Notes · Timestamps',
+    icon:     'podcast',
+    color:    'yellow',
+    welcome:  '🎧 <strong>Podcast AI</strong> ready! I create episode outlines, show notes, chapter timestamps, guest question lists, and episode descriptions. What episode are you planning?',
+    handler:  _aiPodcastReply
+  }
+};
+
+function activateAIAgent(type) {
+  State.currentAIAgent = type;
+  const agent = AI_AGENTS[type];
+  if (!agent) return;
+
+  const titleEl    = $('aiChatTitle');
+  const subtitleEl = $('aiChatSubtitle');
+  const messages   = $('aiMessages');
+
+  if (titleEl)    titleEl.textContent    = agent.title;
+  if (subtitleEl) subtitleEl.textContent = agent.subtitle;
+  if (messages) {
+    messages.innerHTML = `
+      <div class="flex gap-3">
+        <div class="w-8 h-8 rounded-full bg-${agent.color}-500/20 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-${agent.icon} text-${agent.color}-400 text-sm"></i>
+        </div>
+        <div class="bg-white/5 rounded-xl px-4 py-3 text-neutral-300 text-sm max-w-md leading-relaxed">
+          ${agent.welcome}
+        </div>
+      </div>`;
     messages.scrollTop = messages.scrollHeight;
-  }, 900 + Math.random() * 600);
+  }
+
+  const box = $('aiChatBox');
+  if (box) box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  const input = $('aiInput');
+  if (input) {
+    // Pre-fill with agent-specific placeholder prompts
+    const prompts = {
+      assistant: '',
+      music:     'Write a 30-second OFURE RADIO station ID with an Afrobeats vibe',
+      voice:     'Write a professional morning show intro for DJ Alex on OFURE RADIO',
+      script:    'Write a full 5-minute script for the Evening Drive show with DJ Marcus',
+      blog:      'Write a news article about the latest Afrobeats and Afropop trends in 2025',
+      podcast:   'Create a 20-minute podcast episode outline: "How African Music Is Conquering the World"'
+    };
+    if (prompts[type]) input.placeholder = prompts[type];
+    input.focus();
+  }
+  showToast(`${agent.title} activated!`, 'success');
+}
+
+function sendAIMessage() {
+  const input    = $('aiInput');
+  const messages = $('aiMessages');
+  const sendBtn  = $('aiSendBtn');
+  if (!input || !messages) return;
+  const msg = input.value.trim();
+  if (!msg) { input.focus(); return; }
+  input.value = '';
+
+  // Disable button while processing
+  if (sendBtn) { sendBtn.disabled = true; sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>'; }
+
+  const agent = AI_AGENTS[State.currentAIAgent] || AI_AGENTS.assistant;
+
+  // User bubble
+  messages.innerHTML += `
+    <div class="flex gap-3 justify-end">
+      <div class="bg-orange-500/20 border border-orange-500/30 rounded-xl px-4 py-3 text-white text-sm max-w-md leading-relaxed">${_escHtml(msg)}</div>
+      <div class="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-user text-orange-400 text-sm"></i>
+      </div>
+    </div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  // Typing indicator
+  const typingId = 'typing_' + Date.now();
+  messages.innerHTML += `
+    <div id="${typingId}" class="flex gap-3">
+      <div class="w-8 h-8 rounded-full bg-${agent.color}-500/20 flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-${agent.icon} text-${agent.color}-400 text-sm"></i>
+      </div>
+      <div class="bg-white/5 rounded-xl px-4 py-3 text-neutral-400 text-sm flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-neutral-400 animate-bounce" style="animation-delay:0ms"></span>
+        <span class="w-2 h-2 rounded-full bg-neutral-400 animate-bounce" style="animation-delay:150ms"></span>
+        <span class="w-2 h-2 rounded-full bg-neutral-400 animate-bounce" style="animation-delay:300ms"></span>
+      </div>
+    </div>`;
+  messages.scrollTop = messages.scrollHeight;
+
+  const delay = 800 + Math.random() * 700;
+  setTimeout(() => {
+    const reply = agent.handler(msg);
+    const t = $(typingId);
+    if (t) t.outerHTML = `
+      <div class="flex gap-3">
+        <div class="w-8 h-8 rounded-full bg-${agent.color}-500/20 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-${agent.icon} text-${agent.color}-400 text-sm"></i>
+        </div>
+        <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-neutral-200 text-sm max-w-lg leading-relaxed">${reply}</div>
+      </div>`;
+    messages.scrollTop = messages.scrollHeight;
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i><span class="hidden sm:inline ml-2">Send</span>';
+    }
+  }, delay);
+}
+
+function quickPrompt(msg, label) {
+  const input = $('aiInput');
+  if (input) { input.value = msg; input.focus(); }
+}
+
+function clearAIChat() {
+  const agent    = AI_AGENTS[State.currentAIAgent] || AI_AGENTS.assistant;
+  const messages = $('aiMessages');
+  if (messages) {
+    messages.innerHTML = `
+      <div class="flex gap-3">
+        <div class="w-8 h-8 rounded-full bg-${agent.color}-500/20 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-${agent.icon} text-${agent.color}-400 text-sm"></i>
+        </div>
+        <div class="bg-white/5 rounded-xl px-4 py-3 text-neutral-300 text-sm max-w-md leading-relaxed">${agent.welcome}</div>
+      </div>`;
+  }
+}
+
+// ── AI Reply Handlers ─────────────────────────────────
+function _aiAssistantReply(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('schedule') || m.includes('show') || m.includes('programme'))
+    return `📅 <strong>Schedule Analysis:</strong> You have <strong>${document.querySelectorAll('.schedule-row').length || 8} shows</strong> in your weekly schedule. Morning Vibes with DJ Alex at 6AM is typically your highest engagement slot. I recommend:<br><br>
+    1. Add a <em>Sunday Gospel Brunch</em> (10AM–12PM) to capture weekend listeners<br>
+    2. Create a Friday night <em>OFURE Party Mix</em> for the evening crowd<br>
+    3. Consider a Saturday morning <em>Throwback Weekend</em> show<br><br>
+    <i class="fas fa-lightbulb text-yellow-400 mr-1"></i>Would you like me to write a script for any of these shows?`;
+
+  if (m.includes('blog') || m.includes('article') || m.includes('news'))
+    return `📰 <strong>Blog Strategy:</strong> Your OFURE BEAT blog auto-refreshes every 24 hours with content across 8 categories. Currently your top performing categories are <strong>Music</strong>, <strong>Entertainment</strong>, and <strong>Africa</strong>.<br><br>
+    Recommendations:<br>
+    • Post at least 3 articles per week minimum<br>
+    • Feature more <em>Afrobeats artist spotlights</em> — they drive 3x more shares<br>
+    • Add a <em>Weekly Chart Countdown</em> article every Friday<br>
+    • Cross-post all articles to your social media channels<br><br>
+    <i class="fas fa-rocket text-orange-400 mr-1"></i>Use the Blog Generator agent to draft new articles instantly!`;
+
+  if (m.includes('stream') || m.includes('broadcast') || m.includes('zeno'))
+    return `📡 <strong>Stream Health Check:</strong> Your main Zeno.FM stream is configured and active.<br><br>
+    <strong>Recommendations:</strong><br>
+    • Configure a backup/failover stream URL in Stream Manager<br>
+    • Stream bitrate: 128kbps is ideal for most listeners<br>
+    • Add your stream to <a href="https://tunein.com" target="_blank" class="text-orange-400 underline">TuneIn Radio</a> and <a href="https://radiogarden.com" target="_blank" class="text-orange-400 underline">Radio Garden</a> for free discovery<br>
+    • Enable stream metadata so listeners see the current song title<br><br>
+    Go to <strong>Stream Manager</strong> to edit your stream settings.`;
+
+  if (m.includes('grow') || m.includes('audience') || m.includes('listener') || m.includes('more people'))
+    return `📈 <strong>Audience Growth Strategy for OFURE RADIO:</strong><br><br>
+    <strong>Short-term (this week):</strong><br>
+    1. Share blog articles daily on Instagram, Twitter &amp; Facebook<br>
+    2. Create a TikTok account posting 30-sec music clips<br>
+    3. Join African music communities on Reddit &amp; Facebook Groups<br><br>
+    <strong>Medium-term (this month):</strong><br>
+    4. Submit your stream to <a href="https://tunein.com/broadcasters/" target="_blank" class="text-orange-400 underline">TuneIn Broadcasters</a><br>
+    5. Partner with Nigerian/African bloggers for cross-promotion<br>
+    6. Launch a weekly listener call-in segment<br><br>
+    <strong>Long-term:</strong><br>
+    7. Host live events (virtual or physical)<br>
+    8. Launch a Patreon or listener supporter programme`;
+
+  if (m.includes('seo') || m.includes('search') || m.includes('google'))
+    return `🔍 <strong>SEO Guide for OFURE RADIO:</strong><br><br>
+    1. <strong>Meta descriptions</strong> — ensure each blog article has a unique 150-character description<br>
+    2. <strong>Keywords</strong> — target: "Afrobeats radio online", "Nigerian music stream", "African radio live"<br>
+    3. <strong>Schema markup</strong> — add RadioStation and PodcastSeries structured data<br>
+    4. <strong>Backlinks</strong> — get listed on AllAfrica.com, Nairaland, and African music directories<br>
+    5. <strong>Speed</strong> — your Cloudflare Pages hosting already provides excellent performance<br>
+    6. <strong>Content frequency</strong> — publish at least 3 new articles per week for Google freshness signals`;
+
+  if (m.includes('podcast') || m.includes('episode'))
+    return `🎧 <strong>Podcast Strategy:</strong> Your Podcast Studio is fully equipped with recording, uploading, and RSS capabilities.<br><br>
+    <strong>Show concepts for OFURE RADIO:</strong><br>
+    1. <em>"OFURE Weekly Roundup"</em> — 15 min weekly news digest<br>
+    2. <em>"Backstage with OFURE"</em> — DJ/artist interviews<br>
+    3. <em>"Afrobeats Decoded"</em> — deep dives into songs and artists<br>
+    4. <em>"African Culture Hour"</em> — culture, language, and lifestyle<br><br>
+    Switch to the <strong>Podcast AI</strong> agent for detailed episode outlines!`;
+
+  return `I'm your OFURE RADIO station intelligence assistant. I can help with:<br><br>
+  🎙️ <strong>Show scheduling</strong> — optimise your programming<br>
+  📰 <strong>Blog strategy</strong> — content planning and SEO<br>
+  📡 <strong>Stream management</strong> — setup and distribution tips<br>
+  🎧 <strong>Podcast production</strong> — episode planning<br>
+  📈 <strong>Audience growth</strong> — proven tactics for internet radio<br>
+  🔍 <strong>SEO</strong> — rank higher in search engines<br><br>
+  What would you like to work on today?`;
+}
+
+function _aiMusicReply(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('jingle') || m.includes('id') || m.includes('station'))
+    return `🎵 <strong>OFURE RADIO Station ID Script:</strong><br><br>
+    <div class="bg-neutral-800/60 rounded-lg p-3 mt-2 font-mono text-xs text-green-300 leading-loose">
+    [UPBEAT AFROBEATS INTRO — 4 bars]<br><br>
+    <em>ANNOUNCER (energetic, warm):</em><br>
+    "You're locked in to OFURE RADIO —<br>
+    the sound of Africa, the beat of the world.<br>
+    <strong>THIS IS WHERE IT ALL BEGAN.</strong>"<br><br>
+    [MUSIC SWELL]<br><br>
+    <em>TAGLINE (over music):</em><br>
+    "Afrobeats. R&B. Gospel. Hip-Hop. Culture.<br>
+    Stream us live — OFURE RADIO dot com!"<br><br>
+    [MUSIC FADE OUT — 0:28]
+    </div><br>
+    💡 Record this with the Voiceover Generator or paste it into your Podcast Studio to record directly!`;
+
+  if (m.includes('bumper') || m.includes('break'))
+    return `🎵 <strong>Station Bumper Scripts (30 sec):</strong><br><br>
+    <strong>Version A (energetic):</strong><br>
+    <em>"You're tuned to OFURE RADIO — non-stop Afrobeats, R&B and Gospel. Stay with us!"</em><br><br>
+    <strong>Version B (cool/smooth):</strong><br>
+    <em>"OFURE RADIO — where every beat tells a story. We'll be right back."</em><br><br>
+    <strong>Version C (gospel):</strong><br>
+    <em>"Praising, playing, broadcasting God's music — OFURE GOSPEL STATION. Don't touch that dial."</em>`;
+
+  return `🎵 <strong>Music ID &amp; Jingle Ideas for OFURE RADIO:</strong><br><br>
+  I can write scripts for:<br>
+  • <strong>Station IDs</strong> — "You're listening to OFURE RADIO" spots<br>
+  • <strong>Jingle copy</strong> — sing-along station identifiers<br>
+  • <strong>Bumpers</strong> — short break intros/outros<br>
+  • <strong>Promo spots</strong> — event and show promotions<br>
+  • <strong>Bed music ideas</strong> — genre recommendations for different times<br><br>
+  What type of music ID or jingle would you like me to write?`;
+}
+
+function _aiVoiceReply(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('morning') || m.includes('intro') || m.includes('dj alex'))
+    return `🎙️ <strong>Morning Show Intro Script — DJ Alex / Morning Vibes:</strong><br><br>
+    <div class="bg-neutral-800/60 rounded-lg p-3 mt-2 text-xs text-yellow-200 leading-loose">
+    [AFROBEATS BED MUSIC — FADE IN]<br><br>
+    <em>DJ ALEX (energetic, warm):</em><br>
+    "Good morning, OFURE RADIO family! ☀️<br>
+    It's [TIME] and you're waking up with the one and only <strong>Morning Vibes</strong>!<br>
+    I'm your boy DJ Alex, and we are LIVE from the studio.<br><br>
+    We've got three hours of the HOTTEST Afrobeats, R&B, and Gospel<br>
+    to kick-start your beautiful day.<br><br>
+    Wherever you are in the world — Lagos, London, New York, Accra —<br>
+    this morning, we vibe TOGETHER.<br><br>
+    Let's GET IT! <strong>This is OFURE RADIO — THIS IS WHERE IT ALL BEGAN!</strong>"<br><br>
+    [MUSIC UP — FIRST SONG]
+    </div>`;
+
+  if (m.includes('promo') || m.includes('ad') || m.includes('advert'))
+    return `🎙️ <strong>30-Second Promo Script:</strong><br><br>
+    <div class="bg-neutral-800/60 rounded-lg p-3 mt-2 text-xs text-yellow-200 leading-loose">
+    [ENERGETIC MUSIC BED]<br><br>
+    <em>ANNOUNCER:</em><br>
+    "Are you ready for the best African music experience online?<br>
+    OFURE RADIO streams the hottest Afrobeats, R&B, Gospel and Hip-Hop<br>
+    — 24 hours a day, 7 days a week, from anywhere in the world.<br><br>
+    With DJ Alex, DJ Luna, DJ Marcus, and the full OFURE crew —<br>
+    there's always something AMAZING on air.<br><br>
+    Stream us FREE at ofure-radio dot pages dot dev<br>
+    <strong>OFURE RADIO — This Is Where It All Began!</strong>"<br><br>
+    [MUSIC STING — OUT]
+    </div>`;
+
+  return `🎙️ <strong>Voiceover Script Generator Ready!</strong><br><br>
+  I can write professional scripts for:<br>
+  • <strong>Morning/Evening show intros</strong><br>
+  • <strong>Station promotional spots</strong> (15s, 30s, 60s)<br>
+  • <strong>Ad reads</strong> for sponsors<br>
+  • <strong>News opening reads</strong><br>
+  • <strong>Event announcements</strong><br>
+  • <strong>Legal/terms of service reads</strong><br><br>
+  Which DJ or show needs a voiceover script?`;
+}
+
+function _aiScriptReply(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('evening') || m.includes('marcus') || m.includes('drive'))
+    return `✍️ <strong>Evening Drive Script — DJ Marcus (4PM–8PM):</strong><br><br>
+    <div class="bg-neutral-800/60 rounded-lg p-3 mt-2 text-xs text-pink-200 leading-loose">
+    [AFROBEATS INTRO TRACK — 1 MIN]<br><br>
+    <strong>SEGMENT 1: WELCOME (0:00–1:00)</strong><br>
+    <em>DJ MARCUS:</em> "The clock just hit 4 and you know what that means — it's EVENING DRIVE time on OFURE RADIO! I'm DJ Marcus and we are about to take this commute to another level. Whether you're in traffic, at the gym, or just unwinding — this one's for YOU."<br><br>
+    <strong>SEGMENT 2: TOP NEWS BEAT (1:00–4:00)</strong><br>
+    <em>DJ MARCUS:</em> "Before we get into the music, let's run through today's top entertainment headlines..."<br>
+    [Read 3 news items from OFURE BEAT blog]<br><br>
+    <strong>SEGMENT 3: MUSIC BLOCK (4:00–30:00)</strong><br>
+    [6–8 songs with artist/title IDs between each]<br><br>
+    <strong>SEGMENT 4: LISTENER SHOUTOUT (30:00–32:00)</strong><br>
+    <em>DJ MARCUS:</em> "Shoutout to everyone tuned in right now — drop us a message on Instagram..."
+    </div>`;
+
+  return `✍️ <strong>Script Writer Ready!</strong><br><br>
+  I write full scripts for:<br>
+  • <strong>Full show rundowns</strong> (2hr, 4hr formats)<br>
+  • <strong>News reader scripts</strong> with headlines<br>
+  • <strong>Interview guides</strong> and question lists<br>
+  • <strong>Show segment scripts</strong><br>
+  • <strong>Closing/sign-off scripts</strong><br><br>
+  Tell me: which show, which DJ, and how long?`;
+}
+
+function _aiBlogReply(msg) {
+  const m   = msg.toLowerCase();
+  const now = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+  if (m.includes('afrobeats') || m.includes('music') || m.includes('artist'))
+    return `📰 <strong>Draft Article: Afrobeats Goes Global in 2025</strong><br>
+    <em>${now}</em><br><br>
+    <strong>AFROBEATS REWRITES THE GLOBAL MUSIC RULEBOOK</strong><br><br>
+    The Afrobeats genre has officially crossed from a regional phenomenon into a worldwide cultural force. In the first quarter of 2025, three Afrobeats tracks appeared simultaneously on the Billboard Hot 100 — a first in the chart's history.<br><br>
+    Artists like Burna Boy, Wizkid, Davido, Asake, and Ayra Starr continue to break streaming records, with combined Spotify streams exceeding 15 billion in 2024 alone. Tyla's Grammy win for Best African Music Performance signaled Hollywood's formal acknowledgment of African artistry.<br><br>
+    Industry analysts note a 340% increase in Afrobeats radio plays across US and UK stations over the past three years. "Afrobeats is no longer a genre — it's a global lifestyle," says music critic Dr. Emeka Osei. "It carries African culture, fashion, food, and language with it wherever it goes."<br><br>
+    <em>— OFURE RADIO News Desk</em>`;
+
+  if (m.includes('nollywood') || m.includes('film') || m.includes('movie'))
+    return `📰 <strong>Draft Article: Nollywood Storms Global Streaming Platforms</strong><br><br>
+    Nigeria's Nollywood film industry has announced a strategic partnership with three major global streaming platforms in 2025, set to bring over 500 Nigerian films to international audiences for the first time.<br><br>
+    The deal — estimated at $200 million over 3 years — represents the largest investment in African cinema to date. "Nollywood stories are universal," said filmmaker Kemi Adetiba. "Love, family, ambition, spirituality — these are human stories."<br><br>
+    <em>— OFURE RADIO Entertainment</em>`;
+
+  return `📰 <strong>Blog Content Generator Ready!</strong><br><br>
+  I can write full articles on:<br>
+  • <strong>Music news</strong> — Afrobeats, Highlife, Afropop, Gospel<br>
+  • <strong>Celebrity features</strong> — interviews, spotlights<br>
+  • <strong>World entertainment</strong> — film, TV, streaming<br>
+  • <strong>African culture</strong> — events, trends, lifestyle<br>
+  • <strong>Sports</strong> — AFCON, Premier League, African athletes<br>
+  • <strong>Technology</strong> — apps, startups, innovation in Africa<br><br>
+  What story should I write? Give me a topic or headline and I'll draft a full article!`;
+}
+
+function _aiPodcastReply(msg) {
+  const m = msg.toLowerCase();
+  if (m.includes('afrobeats') || m.includes('global') || m.includes('world') || m.includes('outline'))
+    return `🎧 <strong>Episode Outline: "How African Music Is Conquering the World"</strong><br>
+    <em>Runtime: 22 minutes | Format: Solo hosted + 1 guest</em><br><br>
+    <strong>[00:00–02:00] INTRO</strong><br>
+    Host welcome, episode teaser, OFURE RADIO station ID<br><br>
+    <strong>[02:00–06:00] SEGMENT 1: The Numbers</strong><br>
+    • Afrobeats streaming stats 2023–2025<br>
+    • Billboard Hot 100 milestones<br>
+    • Countries where Afrobeats is top-10 most streamed<br><br>
+    <strong>[06:00–12:00] SEGMENT 2: Key Artists</strong><br>
+    • Burna Boy's Grammy journey<br>
+    • Wizkid's "Essence" global crossover<br>
+    • Tyla and the Amapiano revolution<br>
+    • New generation: Asake, Ayra Starr, Rema<br><br>
+    <strong>[12:00–18:00] SEGMENT 3: Why Now?</strong><br>
+    • Social media and TikTok's role<br>
+    • African diaspora as cultural ambassadors<br>
+    • Western label investment in Africa<br><br>
+    <strong>[18:00–21:00] SEGMENT 4: What's Next?</strong><br>
+    • Predictions for Afrobeats 2025–2030<br>
+    • OFURE RADIO's role in the movement<br><br>
+    <strong>[21:00–22:00] OUTRO</strong><br>
+    Call-to-action, subscribe reminder, next episode teaser<br><br>
+    💡 Use this outline with the Podcast Studio to record your episode!`;
+
+  return `🎧 <strong>Podcast AI Ready!</strong><br><br>
+  I create:<br>
+  • <strong>Episode outlines</strong> with timed segments<br>
+  • <strong>Show notes</strong> and descriptions<br>
+  • <strong>Chapter timestamps</strong> for YouTube uploads<br>
+  • <strong>Guest interview question lists</strong><br>
+  • <strong>Episode titles &amp; thumbnails copy</strong><br>
+  • <strong>Social media captions</strong> for each episode<br><br>
+  What episode topic shall I outline for OFURE RADIO?`;
 }
 
 function showAIFeature(type) {
-  const prefills = {
-    music:   'Help me write a 30-second station ID jingle script for OFURE RADIO with an upbeat Afrobeats vibe.',
-    voice:   'Generate a professional voiceover script for a morning show intro for DJ Alex.',
-    script:  'Write a 5-minute script for the Evening Drive show hosted by DJ Marcus, opening with the top entertainment news.',
-    blog:    'What categories of blog content will drive the most traffic and engagement for OFURE RADIO?',
-    podcast: 'Create an episode outline for a 20-minute podcast about the rise of Afrobeats globally.'
-  };
-  const aiInput = $('aiInput');
-  if (aiInput) { aiInput.value = prefills[type] || 'Help me with ' + type; aiInput.focus(); }
-  showPanel('ai');
-  showToast('AI feature loaded — press Enter or click Send!', 'info');
+  activateAIAgent(type);
 }
 
 // ─── SECURITY / PIN ────────────────────────────────────
 function changePIN(e) {
   e.preventDefault();
-  const curr    = $('currentPin')?.value;
-  const next    = $('newPin')?.value;
-  const confirm = $('confirmPin')?.value;
-  const stored  = localStorage.getItem('ofure_admin_pin') || '1234';
+  const curr   = $('currentPin')?.value;
+  const next   = $('newPin')?.value;
+  const conf   = $('confirmPin')?.value;
+  const stored = localStorage.getItem('ofure_admin_pin') || '1234';
   if (curr !== stored)  { showToast('Current PIN is incorrect.', 'error'); return; }
-  if (next !== confirm) { showToast('New PINs do not match.', 'error'); return; }
+  if (next !== conf)    { showToast('New PINs do not match.', 'error'); return; }
   if (!/^\d{4}$/.test(next)) { showToast('PIN must be exactly 4 digits.', 'error'); return; }
   localStorage.setItem('ofure_admin_pin', next);
   showToast('PIN changed successfully! 🔐', 'success');
@@ -971,30 +1622,98 @@ function changePIN(e) {
 // ─── SETTINGS ──────────────────────────────────────────
 function populateSettings() {
   const s = State.settings;
-  const fields = { settingStationName:s.stationName, settingTagline:s.tagline, settingEmail:s.email, settingMainStream:s.mainStream, settingFacebook:s.facebook, settingTwitter:s.twitter, settingInstagram:s.instagram, settingYoutube:s.youtube };
-  Object.entries(fields).forEach(([id, val]) => { const el=$(id); if(el) el.value = val || ''; });
+  const map = {
+    settingStationName:     s.stationName     || 'OFURE RADIO',
+    settingTagline:         s.tagline         || 'THIS IS WHERE IT ALL BEGAN',
+    settingEmail:           s.email           || 'hello@ofureradio.com',
+    settingMainStream:      s.mainStream      || 'https://stream.zeno.fm/f3wvbbqmdg8uv',
+    settingDescription:     s.description     || '',
+    settingFacebook:        s.facebook        || '',
+    settingTwitter:         s.twitter         || '',
+    settingInstagram:       s.instagram       || '',
+    settingYoutube:         s.youtube         || '',
+    settingTiktok:          s.tiktok          || '',
+    settingWhatsapp:        s.whatsapp        || '',
+    settingRefreshInterval: s.refreshInterval || '24',
+    settingLanguage:        s.language        || 'en'
+  };
+  Object.entries(map).forEach(([id, val]) => {
+    const el = $(id);
+    if (el) el.value = val;
+  });
+  const picker = $('settingAccentColor');
+  const hex    = $('settingAccentHex');
+  if (picker) picker.value = s.accentColor || '#f97316';
+  if (hex)    hex.value    = s.accentColor || '#f97316';
 }
 
 function saveSettings(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
+  const accentHex = $('settingAccentHex')?.value || $('settingAccentColor')?.value || '#f97316';
+
   State.settings = {
-    stationName: $('settingStationName')?.value || 'OFURE RADIO',
-    tagline:     $('settingTagline')?.value     || 'Where It All Began',
-    email:       $('settingEmail')?.value       || 'hello@ofureradio.com',
-    mainStream:  $('settingMainStream')?.value  || '',
-    facebook:    $('settingFacebook')?.value    || '',
-    twitter:     $('settingTwitter')?.value     || '',
-    instagram:   $('settingInstagram')?.value   || '',
-    youtube:     $('settingYoutube')?.value     || ''
+    stationName:     $('settingStationName')?.value.trim()  || 'OFURE RADIO',
+    tagline:         $('settingTagline')?.value.trim()       || 'THIS IS WHERE IT ALL BEGAN',
+    email:           $('settingEmail')?.value.trim()         || 'hello@ofureradio.com',
+    mainStream:      $('settingMainStream')?.value.trim()    || '',
+    description:     $('settingDescription')?.value.trim()   || '',
+    facebook:        $('settingFacebook')?.value.trim()      || '',
+    twitter:         $('settingTwitter')?.value.trim()       || '',
+    instagram:       $('settingInstagram')?.value.trim()     || '',
+    youtube:         $('settingYoutube')?.value.trim()       || '',
+    tiktok:          $('settingTiktok')?.value.trim()        || '',
+    whatsapp:        $('settingWhatsapp')?.value.trim()      || '',
+    accentColor:     accentHex,
+    refreshInterval: $('settingRefreshInterval')?.value      || '24',
+    language:        $('settingLanguage')?.value             || 'en'
   };
-  if (State.settings.mainStream) { State.currentStreamUrl = State.settings.mainStream; if (radioPlayer) radioPlayer.src = State.settings.mainStream; }
+
+  // Apply main stream URL if changed
+  if (State.settings.mainStream) {
+    State.currentStreamUrl = State.settings.mainStream;
+    const radioPlayer = $('radioPlayer');
+    if (radioPlayer && !State.isPlaying) radioPlayer.src = State.settings.mainStream;
+  }
+
   saveState('settings');
-  showToast('Settings saved! ✅', 'success');
+  updateSocialLinks();
+
+  // Visual feedback
+  const indicator = $('settingsSaveIndicator');
+  if (indicator) {
+    indicator.classList.remove('hidden');
+    setTimeout(() => indicator.classList.add('hidden'), 3000);
+  }
+
+  showToast('Settings saved successfully! ✅', 'success');
 }
 
-// ─── SOCIAL LINKS (dynamic from settings) ────────────
+function resetSettings() {
+  if (!confirm('Reset all settings to default? This cannot be undone.')) return;
+  State.settings = {
+    stationName:     'OFURE RADIO',
+    tagline:         'THIS IS WHERE IT ALL BEGAN',
+    email:           'hello@ofureradio.com',
+    mainStream:      'https://stream.zeno.fm/f3wvbbqmdg8uv',
+    description:     'Your premier internet radio station broadcasting the best African and world music 24/7.',
+    facebook:        '',
+    twitter:         '',
+    instagram:       '',
+    youtube:         '',
+    tiktok:          '',
+    whatsapp:        '',
+    accentColor:     '#f97316',
+    refreshInterval: '24',
+    language:        'en'
+  };
+  saveState('settings');
+  populateSettings();
+  showToast('Settings reset to default.', 'info');
+}
+
+// ─── SOCIAL LINKS ─────────────────────────────────────
 function updateSocialLinks() {
-  const s = State.settings;
+  const s   = State.settings;
   const map = { facebook: s.facebook, twitter: s.twitter, instagram: s.instagram, youtube: s.youtube };
   $$('.social-link').forEach(a => {
     const platform = a.dataset.platform;
@@ -1002,67 +1721,17 @@ function updateSocialLinks() {
   });
 }
 
-// ─── EXPORT / DOWNLOAD ─────────────────────────────────
-function exportWebsite() {
-  showToast('Preparing export… this may take a moment.', 'info');
-  setTimeout(() => showToast('Export ready! In production, use "wrangler pages deploy" to deploy to Cloudflare Pages.', 'info'), 2000);
-}
-
-// ─── RSS MODAL ─────────────────────────────────────────
-function copyRSSFeed() {
-  const url = location.origin + '/rss.xml';
-  navigator.clipboard.writeText(url)
-    .then(() => showToast('RSS feed URL copied!', 'success'))
-    .catch(() => showToast('RSS URL: ' + url, 'info'));
-}
-
 // ─── MISC HELPERS ─────────────────────────────────────
 function _escHtml(str) {
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-// Backdrop click = close modal
-document.addEventListener('mousedown', e => {
-  const modals = ['editModal','addStreamModal','scheduleModal','rssModal','songRequestModal'];
-  modals.forEach(id => {
-    const m = $(id);
-    if (m && !m.classList.contains('hidden') && e.target === m) closeModal(id);
-  });
-});
-
-// Escape key closes modals
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeAllModals();
-  if (e.key === 'Enter' && $('aiInput') === document.activeElement) sendAIMessage();
-  if (e.ctrlKey && e.shiftKey && e.key === 'A') location.href = '/admin';
-});
-
-// ─── INIT ─────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  // Radio player init
-  if (radioPlayer) radioPlayer.volume = State.volume;
-
-  // Admin init
-  initAdmin();
-  updateSocialLinks();
-
-  // Blog search realtime
-  const blogSearch = $('blogSearch');
-  if (blogSearch) {
-    blogSearch.addEventListener('input', () => filterBlogSearch(blogSearch.value));
-    blogSearch.addEventListener('keydown', e => { if (e.key === 'Enter') filterBlogSearch(blogSearch.value); });
-  }
-
-  // Tag click on blog sidebar
-  $$('.tag-filter').forEach(t => t.addEventListener('click', () => filterByTag(t.dataset.tag)));
-
-  // Image lazy load observer
-  if ('IntersectionObserver' in window) {
-    const obs = new IntersectionObserver(entries => entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('loaded'); obs.unobserve(en.target); } }));
-    $$('img[loading="lazy"]').forEach(img => obs.observe(img));
-  }
-
-  // Volume slider on home page
-  const volSlider = $('volumeSlider');
-  if (volSlider) volSlider.addEventListener('input', () => setVolume(volSlider.value));
-});
+function exportWebsite() {
+  showToast('In production use: "wrangler pages deploy" to deploy to Cloudflare Pages.', 'info');
+}

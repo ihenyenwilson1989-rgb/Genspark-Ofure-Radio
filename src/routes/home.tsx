@@ -30,7 +30,7 @@ export function homePage(): string {
           </div>
           <div>
             <div class="text-white font-black text-xl tracking-tight font-display">OFURE RADIO</div>
-            <div class="text-orange-400 text-xs tracking-widest uppercase">Where It All Began</div>
+            <div class="text-orange-400 text-xs tracking-widest uppercase font-bold">THIS IS WHERE IT ALL BEGAN</div>
           </div>
         </div>
 
@@ -91,7 +91,7 @@ export function homePage(): string {
         OFURE
         <span class="bg-gradient-to-r from-orange-400 via-orange-500 to-purple-500 bg-clip-text text-transparent">RADIO</span>
       </h1>
-      <p class="text-xl md:text-2xl text-neutral-300 font-light mb-4 tracking-wide">Where It All Began</p>
+      <p class="text-xl md:text-2xl text-orange-400 font-bold mb-4 tracking-widest uppercase">THIS IS WHERE IT ALL BEGAN</p>
       <p class="text-neutral-400 max-w-2xl mx-auto mb-10 text-lg leading-relaxed">
         Your premier destination for the best in Afrobeats, R&B, Hip-Hop, and Gospel. Tune in to great music, exciting shows, and news that matters to you.
       </p>
@@ -436,7 +436,7 @@ export function homePage(): string {
             </div>
             <div>
               <div class="text-white font-black text-xl font-display">OFURE RADIO</div>
-              <div class="text-orange-400 text-xs tracking-widest uppercase">Where It All Began</div>
+              <div class="text-orange-400 text-xs tracking-widest uppercase font-bold">THIS IS WHERE IT ALL BEGAN</div>
             </div>
           </div>
           <p class="text-neutral-400 text-sm leading-relaxed max-w-sm">
@@ -465,7 +465,7 @@ export function homePage(): string {
         </div>
       </div>
       <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p class="text-neutral-500 text-sm">© 2025 OFURE RADIO. All rights reserved.</p>
+        <p class="text-neutral-500 text-sm">© 2026 OFURE RADIO. All rights reserved.</p>
         <div class="flex gap-4">
           ${['facebook', 'twitter', 'instagram', 'youtube'].map(s => `
           <a href="#" class="text-neutral-500 hover:text-orange-400 transition-colors">

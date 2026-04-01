@@ -108,14 +108,15 @@ export function adminPage(): string {
         <div class="flex-1 lg:ml-64 min-w-0">
           <div class="p-4 lg:p-8">
 
-            <!-- Dashboard Panel -->
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- DASHBOARD PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
             <div id="panel-dashboard" class="admin-panel">
               <div class="mb-8">
                 <h1 class="text-3xl font-black font-display text-white mb-1">Dashboard</h1>
                 <p class="text-neutral-400">Welcome to OFURE RADIO Admin Studio</p>
               </div>
 
-              <!-- Stats Grid -->
               <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
                 ${[
                   { label: 'Blog Articles', value: articles.length.toString(), icon: 'newspaper', color: 'orange' },
@@ -126,14 +127,14 @@ export function adminPage(): string {
                 <div class="bg-${stat.color}-500/10 border border-${stat.color}-500/20 rounded-xl p-4">
                   <div class="flex items-center justify-between mb-2">
                     <i class="fas fa-${stat.icon} text-${stat.color}-400 text-xl"></i>
+                    <span class="w-2 h-2 rounded-full bg-${stat.color}-400 animate-pulse"></span>
                   </div>
-                  <div class="text-2xl font-black text-white">${stat.value}</div>
+                  <div class="text-2xl font-black text-white" ${stat.label === 'Monthly Listeners' ? 'id="dashListeners"' : ''}>${stat.value}</div>
                   <div class="text-neutral-400 text-sm">${stat.label}</div>
                 </div>
                 `).join('')}
               </div>
 
-              <!-- Quick Actions -->
               <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 mb-8">
                 <h2 class="text-white font-bold mb-4">Quick Actions</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -151,7 +152,6 @@ export function adminPage(): string {
                 </div>
               </div>
 
-              <!-- Recent Blog Articles -->
               <div class="bg-neutral-900 border border-white/10 rounded-xl p-6">
                 <div class="flex items-center justify-between mb-4">
                   <h2 class="text-white font-bold">Recent Blog Articles</h2>
@@ -182,7 +182,9 @@ export function adminPage(): string {
               </div>
             </div>
 
-            <!-- Blog Management Panel -->
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- BLOG MANAGEMENT PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
             <div id="panel-blog" class="admin-panel hidden">
               <div class="flex items-center justify-between mb-8">
                 <div>
@@ -199,7 +201,6 @@ export function adminPage(): string {
                 </div>
               </div>
 
-              <!-- Blog Stats -->
               <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 ${[
                   { label: 'Total Articles', value: articles.length.toString(), color: 'text-orange-400' },
@@ -214,16 +215,14 @@ export function adminPage(): string {
                 `).join('')}
               </div>
 
-              <!-- Auto-refresh Notice -->
               <div class="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 mb-6 flex items-start gap-3">
                 <i class="fas fa-info-circle text-blue-400 mt-0.5 flex-shrink-0"></i>
                 <div>
                   <p class="text-blue-300 font-semibold text-sm">Auto-Generated News Content</p>
-                  <p class="text-blue-400/70 text-xs mt-1">Articles are automatically curated and refreshed every 24 hours. You can review, edit, or override any article below. New articles will appear on the live blog automatically.</p>
+                  <p class="text-blue-400/70 text-xs mt-1">Articles are automatically curated and refreshed every 24 hours. You can review, edit, or override any article below.</p>
                 </div>
               </div>
 
-              <!-- Category Filter -->
               <div class="flex flex-wrap gap-2 mb-6">
                 <button onclick="filterArticles('')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-orange-500 text-white" data-category="">All</button>
                 ${['Entertainment', 'Music', 'Celebrity', 'World News', 'Sports', 'Technology', 'Lifestyle', 'Africa'].map(cat => `
@@ -231,7 +230,6 @@ export function adminPage(): string {
                 `).join('')}
               </div>
 
-              <!-- Articles Table -->
               <div class="bg-neutral-900 border border-white/10 rounded-xl overflow-hidden">
                 <div class="p-4 border-b border-white/10 flex items-center justify-between">
                   <h2 class="text-white font-semibold">All Articles</h2>
@@ -254,37 +252,43 @@ export function adminPage(): string {
                     </thead>
                     <tbody class="divide-y divide-white/5">
                       ${articles.map(a => `
-                      <tr class="hover:bg-white/3 transition-colors article-row" data-category="${a.category}" data-title="${a.title.toLowerCase()}">
+                      <tr class="hover:bg-white/3 transition-colors article-row"
+                        data-id="${a.id}"
+                        data-category="${a.category}"
+                        data-title="${a.title.toLowerCase()}"
+                        data-excerpt="${a.excerpt.replace(/"/g,'&quot;').slice(0,200)}"
+                        data-featured="${a.featured}"
+                        data-slug="${a.slug}">
                         <td class="py-4 px-4">
                           <div class="flex items-center gap-3">
                             <img src="${a.image}" alt="${a.imageAlt}" class="w-10 h-10 object-cover rounded-lg flex-shrink-0">
                             <div class="min-w-0">
-                              <p class="text-white font-medium text-sm truncate max-w-xs">${a.title}</p>
+                              <p class="text-white font-medium text-sm truncate max-w-xs article-title-cell">${a.title}</p>
                               <p class="text-neutral-500 text-xs truncate max-w-xs hidden sm:block">${a.excerpt.slice(0, 60)}...</p>
                             </div>
                           </div>
                         </td>
                         <td class="py-4 px-4 hidden md:table-cell">
-                          <span class="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400">${a.category}</span>
+                          <span class="text-xs px-2 py-1 rounded-full bg-orange-500/20 text-orange-400 article-category-badge">${a.category}</span>
                         </td>
                         <td class="py-4 px-4 text-neutral-400 text-sm hidden lg:table-cell">${a.date}</td>
-                        <td class="py-4 px-4 hidden lg:table-cell">
-                          ${a.featured 
+                        <td class="py-4 px-4 hidden lg:table-cell article-featured-badge">
+                          ${a.featured
                             ? '<span class="text-xs px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-400 border border-yellow-500/30"><i class="fas fa-star mr-1"></i>Featured</span>'
                             : '<span class="text-xs px-2 py-1 rounded-full bg-white/10 text-neutral-400">Published</span>'
                           }
                         </td>
                         <td class="py-4 px-4 text-right">
                           <div class="flex items-center justify-end gap-2">
-                            <a href="/blog/${a.slug}" target="_blank" 
+                            <a href="/blog/${a.slug}" target="_blank"
                               class="text-neutral-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors text-xs" title="View article">
                               <i class="fas fa-eye"></i>
                             </a>
-                            <button onclick="editArticle('${a.id}')" 
+                            <button onclick="editArticle('${a.id}')"
                               class="text-orange-400 hover:text-orange-300 p-2 rounded-lg hover:bg-orange-500/10 transition-colors text-xs" title="Edit article">
                               <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="toggleFeatured('${a.id}')" 
+                            <button onclick="toggleFeatured('${a.id}')"
                               class="p-2 rounded-lg transition-colors text-xs ${a.featured ? 'text-yellow-400 hover:text-yellow-300 bg-yellow-500/10' : 'text-neutral-400 hover:text-yellow-400 hover:bg-yellow-500/10'}" title="Toggle featured">
                               <i class="fas fa-star"></i>
                             </button>
@@ -298,7 +302,9 @@ export function adminPage(): string {
               </div>
             </div>
 
-            <!-- Stream Manager Panel -->
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- STREAM MANAGER PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
             <div id="panel-streams" class="admin-panel hidden">
               <div class="flex items-center justify-between mb-8">
                 <div>
@@ -310,182 +316,406 @@ export function adminPage(): string {
                 </button>
               </div>
 
-              <div class="grid gap-4" id="streamsList">
-                ${[
-                  { name: 'OFURE RADIO MAIN', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Afrobeats • R&B • Gospel', status: 'live', listeners: 247 },
-                  { name: 'OFURE GOSPEL STATION', url: 'https://stream.example.com/gospel', genre: 'Gospel • Worship • Inspirational', status: 'live', listeners: 89 },
-                  { name: 'OFURE URBAN BEATS', url: 'https://stream.example.com/urban', genre: 'Hip-Hop • Trap • Urban', status: 'offline', listeners: 0 },
-                ].map((s, i) => `
-                <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 hover:border-orange-500/20 transition-colors">
-                  <div class="flex flex-col sm:flex-row sm:items-center gap-4">
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                      <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-radio text-orange-400 text-xl"></i>
-                      </div>
-                      <div class="min-w-0">
-                        <div class="flex items-center gap-2 mb-0.5">
-                          <h3 class="text-white font-bold">${s.name}</h3>
-                          <span class="text-xs px-2 py-0.5 rounded-full ${s.status === 'live' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}">
-                            ${s.status === 'live' ? '● LIVE' : '○ OFFLINE'}
-                          </span>
-                        </div>
-                        <p class="text-neutral-400 text-sm">${s.genre}</p>
-                        <p class="text-neutral-600 text-xs truncate">${s.url}</p>
-                      </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                      ${s.status === 'live' ? `<span class="text-neutral-400 text-sm"><i class="fas fa-users mr-1 text-green-400"></i>${s.listeners} listening</span>` : ''}
-                      <div class="flex gap-2">
-                        <button onclick="testStream('${s.url}')" class="text-neutral-400 hover:text-white p-2 rounded-lg hover:bg-white/10 transition-colors" title="Test stream">
-                          <i class="fas fa-play text-sm"></i>
-                        </button>
-                        <button onclick="editStream(${i})" class="text-orange-400 hover:text-orange-300 p-2 rounded-lg hover:bg-orange-500/10 transition-colors" title="Edit stream">
-                          <i class="fas fa-edit text-sm"></i>
-                        </button>
-                        <button onclick="deleteStream(${i})" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors" title="Delete stream">
-                          <i class="fas fa-trash text-sm"></i>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+              <!-- Stream stats -->
+              <div class="grid grid-cols-3 gap-4 mb-6">
+                <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
+                  <div class="text-2xl font-black text-green-400" id="liveStreamCount">2</div>
+                  <div class="text-neutral-400 text-xs mt-1">Live Streams</div>
                 </div>
-                `).join('')}
+                <div class="bg-orange-500/10 border border-orange-500/20 rounded-xl p-4 text-center">
+                  <div class="text-2xl font-black text-orange-400" id="totalStreamCount">3</div>
+                  <div class="text-neutral-400 text-xs mt-1">Total Streams</div>
+                </div>
+                <div class="bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 text-center">
+                  <div class="text-2xl font-black text-purple-400" id="totalListenerCount">336</div>
+                  <div class="text-neutral-400 text-xs mt-1">Total Listeners</div>
+                </div>
+              </div>
+
+              <!-- Stream cards rendered by JS -->
+              <div class="grid gap-4" id="streamsList">
+                <div class="text-center py-8 text-neutral-500">
+                  <i class="fas fa-spinner fa-spin text-3xl mb-3 text-neutral-700 block"></i>
+                  <p>Loading streams...</p>
+                </div>
               </div>
             </div>
 
-            <!-- Podcast Studio Panel -->
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- PODCAST STUDIO PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
             <div id="panel-podcast" class="admin-panel hidden">
               <div class="mb-8">
                 <h1 class="text-3xl font-black font-display text-white mb-1">Podcast Studio</h1>
-                <p class="text-neutral-400">Create and manage podcast episodes</p>
+                <p class="text-neutral-400">Create, record, upload and manage podcast episodes</p>
               </div>
 
-              <div class="grid md:grid-cols-2 gap-6 mb-8">
-                ${[
-                  { icon: 'microphone', title: 'Record Episode', desc: 'Use your browser to record directly', action: 'startRecording()' },
-                  { icon: 'upload', title: 'Upload Audio', desc: 'Upload an audio file from your device', action: 'uploadAudio()' },
-                  { icon: 'robot', title: 'AI Generate', desc: 'Generate episode content with AI', action: "showPanel('ai')" },
-                  { icon: 'rss', title: 'RSS Feed', desc: 'Manage your podcast RSS feed', action: 'manageRSS()' },
-                ].map(item => `
-                <button onclick="${item.action}" class="flex items-center gap-4 bg-neutral-900 border border-white/10 hover:border-orange-500/30 rounded-xl p-6 text-left transition-all group">
-                  <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/30 transition-colors">
-                    <i class="fas fa-${item.icon} text-orange-400 text-xl"></i>
+              <!-- Recording status bar -->
+              <div id="recordingStatus" class="hidden mb-6 bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <span class="w-3 h-3 rounded-full bg-red-500 animate-ping flex-shrink-0"></span>
+                    <div>
+                      <p class="text-red-400 font-bold text-sm">🔴 RECORDING IN PROGRESS</p>
+                      <p class="text-red-300/70 text-xs">Speak clearly into your microphone</p>
+                    </div>
                   </div>
+                  <div class="flex items-center gap-4">
+                    <span class="text-red-400 font-mono font-bold text-xl" id="recordTimer">00:00</span>
+                    <button onclick="startRecording()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-colors">
+                      <i class="fas fa-stop mr-2"></i>Stop
+                    </button>
+                  </div>
+                </div>
+                <!-- Waveform visualizer -->
+                <div class="flex items-end gap-0.5 h-8 mt-3 justify-center" id="recordWave">
+                  ${Array.from({length: 40}, () => `<div class="rec-wave-bar bg-red-500/60 w-1 rounded-full" style="height:4px"></div>`).join('')}
+                </div>
+              </div>
+
+              <!-- Four action cards -->
+              <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <!-- Record Episode -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-red-500/40 rounded-xl p-6 transition-all group">
+                  <div class="w-12 h-12 rounded-xl bg-red-500/20 flex items-center justify-center mb-4 group-hover:bg-red-500/30 transition-colors">
+                    <i class="fas fa-microphone text-red-400 text-xl"></i>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">Record Episode</h3>
+                  <p class="text-neutral-400 text-xs mb-4">Record directly in your browser using your microphone</p>
+                  <button id="recordBtn" onclick="startRecording()"
+                    class="w-full bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-microphone"></i> Start Recording
+                  </button>
+                </div>
+
+                <!-- Upload Audio -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-blue-500/40 rounded-xl p-6 transition-all group">
+                  <div class="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center mb-4 group-hover:bg-blue-500/30 transition-colors">
+                    <i class="fas fa-upload text-blue-400 text-xl"></i>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">Upload Audio</h3>
+                  <p class="text-neutral-400 text-xs mb-4">Upload MP3, WAV, AAC, OGG or any audio file</p>
+                  <button onclick="uploadAudio()"
+                    class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-upload"></i> Choose File
+                  </button>
+                  <!-- Drop zone -->
+                  <div id="dropZone" class="mt-3 border-2 border-dashed border-white/10 rounded-lg p-3 text-center text-neutral-500 text-xs hover:border-blue-500/40 transition-colors cursor-pointer" onclick="uploadAudio()">
+                    <i class="fas fa-cloud-upload-alt mr-1"></i> or drag & drop here
+                  </div>
+                </div>
+
+                <!-- AI Generate -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-purple-500/40 rounded-xl p-6 transition-all group">
+                  <div class="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center mb-4 group-hover:bg-purple-500/30 transition-colors">
+                    <i class="fas fa-robot text-purple-400 text-xl"></i>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">AI Generate</h3>
+                  <p class="text-neutral-400 text-xs mb-4">Let AI write and outline your next podcast episode</p>
+                  <button onclick="aiGeneratePodcast()"
+                    class="w-full bg-purple-500 hover:bg-purple-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-magic"></i> Generate Outline
+                  </button>
+                </div>
+
+                <!-- RSS Feed -->
+                <div class="bg-neutral-900 border border-white/10 hover:border-orange-500/40 rounded-xl p-6 transition-all group">
+                  <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center mb-4 group-hover:bg-orange-500/30 transition-colors">
+                    <i class="fas fa-rss text-orange-400 text-xl"></i>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">RSS Feed</h3>
+                  <p class="text-neutral-400 text-xs mb-4">Manage your podcast RSS feed for distribution</p>
+                  <button onclick="openRSSPanel()"
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                    <i class="fas fa-rss"></i> Manage RSS
+                  </button>
+                </div>
+              </div>
+
+              <!-- Inline RSS Panel (shown/hidden) -->
+              <div id="rssPanelInline" class="hidden bg-neutral-900 border border-orange-500/20 rounded-xl p-6 mb-6">
+                <div class="flex items-center justify-between mb-4">
+                  <h3 class="text-white font-bold flex items-center gap-2"><i class="fas fa-rss text-orange-400"></i> RSS Feed Manager</h3>
+                  <button onclick="document.getElementById('rssPanelInline').classList.add('hidden')" class="text-neutral-400 hover:text-white transition-colors"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="space-y-4">
+                  <div class="bg-white/5 rounded-xl p-4">
+                    <p class="text-neutral-400 text-xs mb-1">Your Podcast RSS Feed URL</p>
+                    <div class="flex gap-2">
+                      <input id="rssFeedUrl" type="text" readonly value="${'https://ofureradio.com/rss.xml'}"
+                        class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm focus:outline-none">
+                      <button onclick="copyRSSFeed()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                        <i class="fas fa-copy mr-1"></i>Copy
+                      </button>
+                    </div>
+                  </div>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-neutral-400 text-xs mb-1">Podcast Title</label>
+                      <input id="rssTitle" type="text" value="OFURE RADIO Podcast" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-xs mb-1">Author</label>
+                      <input id="rssAuthor" type="text" value="OFURE RADIO" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-xs mb-1">Category</label>
+                      <select id="rssCategory" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500">
+                        <option>Music</option><option>Entertainment</option><option>News</option><option>Talk Radio</option><option>Arts</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-xs mb-1">Language</label>
+                      <select id="rssLanguage" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500">
+                        <option>en-US</option><option>en-GB</option><option>yo</option><option>ig</option><option>ha</option>
+                      </select>
+                    </div>
+                    <div class="md:col-span-2">
+                      <label class="block text-neutral-400 text-xs mb-1">Description</label>
+                      <textarea id="rssDesc" rows="2" class="w-full bg-white/10 border border-white/20 rounded-xl px-3 py-2 text-white text-sm focus:outline-none focus:border-orange-500 resize-none">Your premier internet radio station broadcasting the best African and world music 24/7.</textarea>
+                    </div>
+                  </div>
+                  <!-- Distribution platforms -->
                   <div>
-                    <h3 class="text-white font-bold">${item.title}</h3>
-                    <p class="text-neutral-400 text-sm">${item.desc}</p>
+                    <p class="text-neutral-400 text-xs font-semibold mb-2 uppercase tracking-wider">Submit to Platforms</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      ${[
+                        { name: 'Spotify Podcasters', icon: 'spotify', url: 'https://podcasters.spotify.com/', color: 'green' },
+                        { name: 'Apple Podcasts', icon: 'apple', url: 'https://podcastsconnect.apple.com/', color: 'purple' },
+                        { name: 'Google Podcasts', icon: 'google', url: 'https://podcastsmanager.google.com/', color: 'blue' },
+                        { name: 'TuneIn Radio', icon: 'broadcast-tower', url: 'https://tunein.com/podcasts/', color: 'orange' },
+                      ].map(p => `
+                      <a href="${p.url}" target="_blank" class="flex items-center gap-2 bg-${p.color}-500/10 border border-${p.color}-500/20 rounded-xl p-3 hover:bg-${p.color}-500/20 transition-colors text-xs text-${p.color}-400 font-medium">
+                        <i class="${p.icon.includes('fa-') ? 'fas' : 'fab'} fa-${p.icon}"></i> ${p.name}
+                      </a>`).join('')}
+                    </div>
                   </div>
-                </button>
-                `).join('')}
+                  <button onclick="saveRSSSettings()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors">
+                    <i class="fas fa-save mr-2"></i>Save RSS Settings
+                  </button>
+                </div>
               </div>
 
-              <div class="bg-neutral-900 border border-white/10 rounded-xl p-6">
-                <h2 class="text-white font-bold mb-4">Recent Episodes</h2>
-                <div class="text-center py-8 text-neutral-500">
-                  <i class="fas fa-microphone text-4xl mb-3 text-neutral-700"></i>
-                  <p>No episodes yet. Start recording or uploading above.</p>
+              <!-- Episodes list -->
+              <div class="bg-neutral-900 border border-white/10 rounded-xl overflow-hidden">
+                <div class="p-4 border-b border-white/10 flex items-center justify-between">
+                  <h2 class="text-white font-bold flex items-center gap-2">
+                    <i class="fas fa-list text-orange-400"></i> Episodes
+                    <span id="episodeCount" class="bg-orange-500/20 text-orange-400 text-xs px-2 py-0.5 rounded-full">0</span>
+                  </h2>
+                  <div class="flex items-center gap-2 text-neutral-500 text-xs">
+                    <i class="fas fa-info-circle"></i> Click edit to rename/update episodes
+                  </div>
+                </div>
+                <div id="podcastList">
+                  <div class="text-center py-12 text-neutral-500">
+                    <i class="fas fa-microphone text-5xl mb-3 text-neutral-700 block"></i>
+                    <p class="font-medium">No episodes yet</p>
+                    <p class="text-xs mt-1">Start recording or upload an audio file above</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- AI Studio Panel -->
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- AI STUDIO PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
             <div id="panel-ai" class="admin-panel hidden">
               <div class="mb-8">
                 <h1 class="text-3xl font-black font-display text-white mb-1">AI Studio</h1>
-                <p class="text-neutral-400">Power your radio station with AI capabilities</p>
+                <p class="text-neutral-400">Power your radio station with intelligent AI tools</p>
               </div>
 
-              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                ${[
-                  { icon: 'robot', title: 'AI Assistant', desc: 'Ask me anything about managing OFURE RADIO', gradient: 'from-purple-500/20 to-blue-500/20', action: "document.getElementById('aiChatBox').classList.remove('hidden')" },
-                  { icon: 'music', title: 'AI Music Gen', desc: 'Generate music for station IDs', gradient: 'from-orange-500/20 to-red-500/20', action: "showAIFeature('music')" },
-                  { icon: 'volume-up', title: 'Voiceover Gen', desc: 'Generate professional voiceovers', gradient: 'from-green-500/20 to-cyan-500/20', action: "showAIFeature('voice')" },
-                  { icon: 'file-alt', title: 'Script Writer', desc: 'AI-written show scripts', gradient: 'from-pink-500/20 to-purple-500/20', action: "showAIFeature('script')" },
-                  { icon: 'newspaper', title: 'Blog Generator', desc: 'Auto-generate news articles', gradient: 'from-blue-500/20 to-teal-500/20', action: "showAIFeature('blog')" },
-                  { icon: 'podcast', title: 'Podcast AI', desc: 'AI-assisted podcast creation', gradient: 'from-yellow-500/20 to-orange-500/20', action: "showAIFeature('podcast')" },
-                ].map(item => `
-                <button onclick="${item.action}" class="flex flex-col items-start gap-3 bg-gradient-to-br ${item.gradient} border border-white/10 hover:border-white/20 rounded-xl p-6 text-left transition-all group">
-                  <div class="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <i class="fas fa-${item.icon} text-white text-xl"></i>
+              <!-- 6 AI Agent Cards -->
+              <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+                <!-- 1. AI Assistant -->
+                <div class="bg-gradient-to-br from-purple-500/15 to-blue-500/15 border border-purple-500/20 hover:border-purple-500/40 rounded-xl p-5 transition-all group cursor-pointer" onclick="activateAIAgent('assistant')">
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-purple-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <i class="fas fa-robot text-purple-400 text-lg"></i>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">● Active</span>
                   </div>
-                  <div>
-                    <h3 class="text-white font-bold">${item.title}</h3>
-                    <p class="text-neutral-400 text-sm">${item.desc}</p>
-                  </div>
-                </button>
-                `).join('')}
-              </div>
-
-              <!-- AI Chat -->
-              <div id="aiChatBox" class="bg-neutral-900 border border-white/10 rounded-xl overflow-hidden">
-                <div class="p-4 border-b border-white/10 flex items-center gap-2">
-                  <i class="fas fa-robot text-purple-400"></i>
-                  <h3 class="text-white font-bold">OFURE AI Assistant</h3>
-                  <span class="ml-auto text-xs text-neutral-500">Powered by AI</span>
+                  <h3 class="text-white font-bold mb-1">AI Assistant</h3>
+                  <p class="text-neutral-400 text-xs mb-3">Station management, scheduling, audience growth — ask anything</p>
+                  <button class="w-full bg-purple-600/30 hover:bg-purple-600 text-purple-300 hover:text-white py-2 rounded-lg text-xs font-semibold transition-all border border-purple-500/30 hover:border-purple-500">
+                    <i class="fas fa-comments mr-1"></i>Open Chat
+                  </button>
                 </div>
-                <div id="aiMessages" class="h-64 overflow-y-auto p-4 space-y-3">
+
+                <!-- 2. Music ID Generator -->
+                <div class="bg-gradient-to-br from-orange-500/15 to-red-500/15 border border-orange-500/20 hover:border-orange-500/40 rounded-xl p-5 transition-all group cursor-pointer" onclick="activateAIAgent('music')">
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-orange-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <i class="fas fa-music text-orange-400 text-lg"></i>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">● Active</span>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">Music ID Generator</h3>
+                  <p class="text-neutral-400 text-xs mb-3">Generate station ID scripts, jingles &amp; bumper music ideas</p>
+                  <button class="w-full bg-orange-500/30 hover:bg-orange-500 text-orange-300 hover:text-white py-2 rounded-lg text-xs font-semibold transition-all border border-orange-500/30 hover:border-orange-500">
+                    <i class="fas fa-wand-magic-sparkles mr-1"></i>Generate Now
+                  </button>
+                </div>
+
+                <!-- 3. Voiceover Generator -->
+                <div class="bg-gradient-to-br from-green-500/15 to-cyan-500/15 border border-green-500/20 hover:border-green-500/40 rounded-xl p-5 transition-all group cursor-pointer" onclick="activateAIAgent('voice')">
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-green-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <i class="fas fa-volume-up text-green-400 text-lg"></i>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">● Active</span>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">Voiceover Generator</h3>
+                  <p class="text-neutral-400 text-xs mb-3">Professional voiceover scripts for shows, ads and promos</p>
+                  <button class="w-full bg-green-500/30 hover:bg-green-600 text-green-300 hover:text-white py-2 rounded-lg text-xs font-semibold transition-all border border-green-500/30 hover:border-green-500">
+                    <i class="fas fa-microphone-alt mr-1"></i>Write Script
+                  </button>
+                </div>
+
+                <!-- 4. Script Writer -->
+                <div class="bg-gradient-to-br from-pink-500/15 to-purple-500/15 border border-pink-500/20 hover:border-pink-500/40 rounded-xl p-5 transition-all group cursor-pointer" onclick="activateAIAgent('script')">
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-pink-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <i class="fas fa-file-alt text-pink-400 text-lg"></i>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">● Active</span>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">Script Writer</h3>
+                  <p class="text-neutral-400 text-xs mb-3">Full show scripts, intros, outros and news reads</p>
+                  <button class="w-full bg-pink-500/30 hover:bg-pink-600 text-pink-300 hover:text-white py-2 rounded-lg text-xs font-semibold transition-all border border-pink-500/30 hover:border-pink-500">
+                    <i class="fas fa-pencil-alt mr-1"></i>Write Script
+                  </button>
+                </div>
+
+                <!-- 5. Blog Generator -->
+                <div class="bg-gradient-to-br from-blue-500/15 to-teal-500/15 border border-blue-500/20 hover:border-blue-500/40 rounded-xl p-5 transition-all group cursor-pointer" onclick="activateAIAgent('blog')">
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <i class="fas fa-newspaper text-blue-400 text-lg"></i>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">● Active</span>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">Blog Generator</h3>
+                  <p class="text-neutral-400 text-xs mb-3">Auto-generate entertainment &amp; world news articles on demand</p>
+                  <button class="w-full bg-blue-500/30 hover:bg-blue-600 text-blue-300 hover:text-white py-2 rounded-lg text-xs font-semibold transition-all border border-blue-500/30 hover:border-blue-500">
+                    <i class="fas fa-pen mr-1"></i>Generate Article
+                  </button>
+                </div>
+
+                <!-- 6. Podcast AI -->
+                <div class="bg-gradient-to-br from-yellow-500/15 to-orange-500/15 border border-yellow-500/20 hover:border-yellow-500/40 rounded-xl p-5 transition-all group cursor-pointer" onclick="activateAIAgent('podcast')">
+                  <div class="flex items-start justify-between mb-3">
+                    <div class="w-11 h-11 rounded-xl bg-yellow-500/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <i class="fas fa-podcast text-yellow-400 text-lg"></i>
+                    </div>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 border border-green-500/30">● Active</span>
+                  </div>
+                  <h3 class="text-white font-bold mb-1">Podcast AI</h3>
+                  <p class="text-neutral-400 text-xs mb-3">Episode outlines, show notes, timestamps and descriptions</p>
+                  <button class="w-full bg-yellow-500/30 hover:bg-yellow-600 text-yellow-300 hover:text-white py-2 rounded-lg text-xs font-semibold transition-all border border-yellow-500/30 hover:border-yellow-500">
+                    <i class="fas fa-list-alt mr-1"></i>Create Outline
+                  </button>
+                </div>
+              </div>
+
+              <!-- AI Chat Box -->
+              <div id="aiChatBox" class="bg-neutral-900 border border-white/10 rounded-xl overflow-hidden">
+                <div class="p-4 border-b border-white/10 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                      <i class="fas fa-robot text-purple-400 text-sm"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-white font-bold text-sm" id="aiChatTitle">OFURE AI Assistant</h3>
+                      <p class="text-neutral-500 text-xs" id="aiChatSubtitle">Station Management &bull; Content &bull; Strategy</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-green-400 flex items-center gap-1">
+                      <span class="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse"></span> Online
+                    </span>
+                    <button onclick="clearAIChat()" class="text-neutral-500 hover:text-white text-xs transition-colors px-2 py-1 rounded-lg hover:bg-white/10">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </div>
+                </div>
+                <div id="aiMessages" class="h-72 overflow-y-auto p-4 space-y-3">
                   <div class="flex gap-3">
                     <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
                       <i class="fas fa-robot text-purple-400 text-sm"></i>
                     </div>
-                    <div class="bg-white/5 rounded-xl px-4 py-3 text-neutral-300 text-sm max-w-md">
-                      Hello! I'm your OFURE RADIO AI assistant. Ask me anything about managing your station, scheduling shows, or generating content!
+                    <div class="bg-white/5 rounded-xl px-4 py-3 text-neutral-300 text-sm max-w-md leading-relaxed">
+                      Hello! I'm your <strong class="text-white">OFURE RADIO AI Assistant</strong>. I can help you with station management, show scheduling, blog content, stream setup, podcast production, and audience growth strategies. Click any AI agent card above or type your question below!
                     </div>
                   </div>
+                </div>
+                <!-- Suggested prompts -->
+                <div class="px-4 pb-2 flex gap-2 flex-wrap">
+                  ${[
+                    { label: '📅 Schedule Help', msg: 'Help me optimize my show schedule for maximum listener engagement' },
+                    { label: '📝 Write Blog Post', msg: 'Generate a blog article about the latest Afrobeats trends in 2025' },
+                    { label: '🎙️ Morning Intro', msg: 'Write a 30-second morning show intro script for DJ Alex' },
+                    { label: '📈 Grow Audience', msg: 'Give me 5 strategies to grow OFURE RADIO\'s audience in Africa and diaspora' },
+                  ].map(p => `
+                  <button onclick="quickPrompt('${p.msg.replace(/'/g,"\\'")}','${p.label}')" class="text-xs bg-white/5 hover:bg-white/10 border border-white/10 hover:border-orange-500/30 text-neutral-400 hover:text-white px-3 py-1.5 rounded-full transition-all">
+                    ${p.label}
+                  </button>`).join('')}
                 </div>
                 <div class="p-4 border-t border-white/10 flex gap-3">
-                  <input type="text" id="aiInput" placeholder="Ask me anything about managing OFURE RADIO..." 
+                  <input type="text" id="aiInput" placeholder="Ask anything about managing OFURE RADIO..."
                     class="flex-1 bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 text-white placeholder-neutral-500 focus:outline-none focus:border-purple-500 text-sm"
-                    onkeydown="if(event.key==='Enter') sendAIMessage()">
-                  <button onclick="sendAIMessage()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors">
+                    onkeydown="if(event.key==='Enter' && !event.shiftKey){event.preventDefault();sendAIMessage();}">
+                  <button onclick="sendAIMessage()" id="aiSendBtn"
+                    class="bg-purple-600 hover:bg-purple-500 active:scale-95 text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition-all flex items-center gap-2">
                     <i class="fas fa-paper-plane"></i>
+                    <span class="hidden sm:inline">Send</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Schedule Panel -->
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- SCHEDULE PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
             <div id="panel-schedule" class="admin-panel hidden">
-              <div class="mb-8">
-                <h1 class="text-3xl font-black font-display text-white mb-1">Show Schedule</h1>
-                <p class="text-neutral-400">Manage your weekly programming</p>
-              </div>
-              <div class="bg-neutral-900 border border-white/10 rounded-xl p-6">
-                <div class="flex items-center justify-between mb-4">
-                  <h2 class="text-white font-bold">Weekly Schedule</h2>
-                  <button class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors">
-                    <i class="fas fa-plus mr-1"></i>Add Show
-                  </button>
+              <div class="flex items-center justify-between mb-8">
+                <div>
+                  <h1 class="text-3xl font-black font-display text-white mb-1">Show Schedule</h1>
+                  <p class="text-neutral-400">Manage your weekly programming</p>
                 </div>
-                <div class="space-y-3">
-                  ${[
-                    { time: '6:00 AM', show: 'Morning Vibes', host: 'DJ Alex', days: 'Mon-Fri', status: 'live' },
-                    { time: '12:00 PM', show: 'Afternoon Mix', host: 'DJ Luna', days: 'Daily', status: 'scheduled' },
-                    { time: '4:00 PM', show: 'Evening Drive', host: 'DJ Marcus', days: 'Daily', status: 'scheduled' },
-                    { time: '9:00 PM', show: 'Night Frequency', host: 'DJ Sarah', days: 'Daily', status: 'scheduled' },
-                  ].map(show => `
-                  <div class="flex items-center gap-4 bg-white/5 rounded-xl p-4">
-                    <span class="text-white font-semibold w-20 text-sm flex-shrink-0">${show.time}</span>
-                    <div class="flex-1">
-                      <div class="text-white font-medium">${show.show}</div>
-                      <div class="text-neutral-400 text-sm">${show.host} • ${show.days}</div>
-                    </div>
-                    <span class="text-xs px-2 py-1 rounded-full ${show.status === 'live' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'}">
-                      ${show.status === 'live' ? '● ON AIR' : '⏰ Scheduled'}
-                    </span>
-                    <button class="text-neutral-400 hover:text-orange-400 p-2 rounded-lg hover:bg-white/10 transition-colors">
-                      <i class="fas fa-edit text-sm"></i>
-                    </button>
-                  </div>
-                  `).join('')}
+                <button onclick="showAddShowModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors">
+                  <i class="fas fa-plus mr-1"></i>Add Show
+                </button>
+              </div>
+              <div class="bg-neutral-900 border border-white/10 rounded-xl overflow-hidden">
+                <div class="overflow-x-auto">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="border-b border-white/10 bg-white/3">
+                        <th class="text-left py-3 px-4 text-neutral-400 text-xs font-medium uppercase tracking-wider">Time</th>
+                        <th class="text-left py-3 px-4 text-neutral-400 text-xs font-medium uppercase tracking-wider">Show</th>
+                        <th class="text-left py-3 px-4 text-neutral-400 text-xs font-medium uppercase tracking-wider">Host</th>
+                        <th class="text-left py-3 px-4 text-neutral-400 text-xs font-medium uppercase tracking-wider hidden md:table-cell">Genre</th>
+                        <th class="text-left py-3 px-4 text-neutral-400 text-xs font-medium uppercase tracking-wider hidden lg:table-cell">Days</th>
+                        <th class="text-left py-3 px-4 text-neutral-400 text-xs font-medium uppercase tracking-wider">Status</th>
+                        <th class="text-right py-3 px-4 text-neutral-400 text-xs font-medium uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="scheduleBody" class="divide-y divide-white/5">
+                      <!-- Populated by JS renderSchedule() -->
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
 
-            <!-- Security Panel -->
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- SECURITY PANEL -->
+            <!-- ═══════════════════════════════════════════ -->
             <div id="panel-security" class="admin-panel hidden">
               <div class="mb-8">
-                <h1 class="text-3xl font-black font-display text-white mb-1">Security & PIN</h1>
+                <h1 class="text-3xl font-black font-display text-white mb-1">Security &amp; PIN</h1>
                 <p class="text-neutral-400">Manage admin access settings</p>
               </div>
               <div class="max-w-md">
@@ -505,96 +735,327 @@ export function adminPage(): string {
                       <input type="password" id="confirmPin" maxlength="4" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500" placeholder="••••">
                     </div>
                     <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors">
-                      Update PIN
+                      <i class="fas fa-lock mr-2"></i>Update PIN
                     </button>
                   </form>
                 </div>
-              </div>
-            </div>
-
-            <!-- Settings Panel -->
-            <div id="panel-settings" class="admin-panel hidden">
-              <div class="mb-8">
-                <h1 class="text-3xl font-black font-display text-white mb-1">Settings</h1>
-                <p class="text-neutral-400">Station configuration</p>
-              </div>
-              <div class="bg-neutral-900 border border-white/10 rounded-xl p-6">
-                <h2 class="text-white font-bold mb-4">Station Settings</h2>
-                <div class="space-y-4">
-                  ${[
-                    { label: 'Station Name', value: 'OFURE RADIO', type: 'text' },
-                    { label: 'Tagline', value: 'Where It All Began', type: 'text' },
-                    { label: 'Contact Email', value: 'hello@ofureradio.com', type: 'email' },
-                    { label: 'Main Stream URL', value: 'https://stream.zeno.fm/f3wvbbqmdg8uv', type: 'url' },
-                  ].map(field => `
-                  <div>
-                    <label class="block text-neutral-400 text-sm mb-2">${field.label}</label>
-                    <input type="${field.type}" value="${field.value}" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+                <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 mt-4">
+                  <h2 class="text-white font-bold mb-3">Session Info</h2>
+                  <div class="space-y-2 text-sm">
+                    <div class="flex justify-between"><span class="text-neutral-400">Session Status</span><span class="text-green-400 font-semibold">Active</span></div>
+                    <div class="flex justify-between"><span class="text-neutral-400">Admin Level</span><span class="text-white">Super Admin</span></div>
+                    <div class="flex justify-between"><span class="text-neutral-400">Last Login</span><span class="text-neutral-300" id="lastLoginTime">Just now</span></div>
                   </div>
-                  `).join('')}
-                  <button class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold transition-colors">
-                    Save Settings
+                  <button onclick="adminLogout()" class="mt-4 w-full bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 py-2.5 rounded-xl text-sm font-semibold transition-colors">
+                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
                   </button>
                 </div>
               </div>
             </div>
 
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- SETTINGS PANEL — fully wired with proper IDs -->
+            <!-- ═══════════════════════════════════════════ -->
+            <div id="panel-settings" class="admin-panel hidden">
+              <div class="mb-8">
+                <h1 class="text-3xl font-black font-display text-white mb-1">Settings</h1>
+                <p class="text-neutral-400">Station configuration &amp; social media links</p>
+              </div>
+
+              <form onsubmit="saveSettings(event)" id="settingsForm">
+                <!-- Station Info -->
+                <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 mb-6">
+                  <h2 class="text-white font-bold mb-5 flex items-center gap-2">
+                    <i class="fas fa-broadcast-tower text-orange-400"></i> Station Information
+                  </h2>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Station Name</label>
+                      <input type="text" id="settingStationName" placeholder="OFURE RADIO"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Station Tagline</label>
+                      <input type="text" id="settingTagline" placeholder="THIS IS WHERE IT ALL BEGAN"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Contact Email</label>
+                      <input type="email" id="settingEmail" placeholder="hello@ofureradio.com"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Main Stream URL</label>
+                      <input type="url" id="settingMainStream" placeholder="https://stream.zeno.fm/..."
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+                    </div>
+                    <div class="md:col-span-2">
+                      <label class="block text-neutral-400 text-sm mb-2">Station Description</label>
+                      <textarea id="settingDescription" rows="2" placeholder="Describe your radio station..."
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors resize-none"></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Social Media -->
+                <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 mb-6">
+                  <h2 class="text-white font-bold mb-5 flex items-center gap-2">
+                    <i class="fas fa-share-alt text-orange-400"></i> Social Media Links
+                  </h2>
+                  <div class="grid md:grid-cols-2 gap-4">
+                    ${[
+                      { id: 'settingFacebook',  icon: 'facebook',  label: 'Facebook URL',  placeholder: 'https://facebook.com/ofureradio',  color: 'blue'   },
+                      { id: 'settingTwitter',   icon: 'twitter',   label: 'Twitter / X URL', placeholder: 'https://twitter.com/ofureradio',  color: 'sky'    },
+                      { id: 'settingInstagram', icon: 'instagram', label: 'Instagram URL', placeholder: 'https://instagram.com/ofureradio', color: 'pink'   },
+                      { id: 'settingYoutube',   icon: 'youtube',   label: 'YouTube URL',   placeholder: 'https://youtube.com/@ofureradio',  color: 'red'    },
+                      { id: 'settingTiktok',    icon: 'tiktok',    label: 'TikTok URL',    placeholder: 'https://tiktok.com/@ofureradio',   color: 'purple' },
+                      { id: 'settingWhatsapp',  icon: 'whatsapp',  label: 'WhatsApp Link', placeholder: 'https://wa.me/...',                color: 'green'  },
+                    ].map(f => `
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">
+                        <i class="fab fa-${f.icon} text-${f.color}-400 mr-1"></i>${f.label}
+                      </label>
+                      <input type="url" id="${f.id}" placeholder="${f.placeholder}"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+                    </div>`).join('')}
+                  </div>
+                </div>
+
+                <!-- Appearance -->
+                <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 mb-6">
+                  <h2 class="text-white font-bold mb-5 flex items-center gap-2">
+                    <i class="fas fa-palette text-orange-400"></i> Appearance
+                  </h2>
+                  <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Primary Accent Color</label>
+                      <div class="flex gap-2">
+                        <input type="color" id="settingAccentColor" value="#f97316"
+                          class="w-12 h-11 rounded-lg cursor-pointer bg-transparent border border-white/20 p-0.5">
+                        <input type="text" id="settingAccentHex" value="#f97316" placeholder="#f97316"
+                          class="flex-1 bg-white/10 border border-white/20 rounded-xl px-3 py-3 text-white focus:outline-none focus:border-orange-500 text-sm">
+                      </div>
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Blog Auto-Refresh</label>
+                      <select id="settingRefreshInterval" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+                        <option value="24">Every 24 hours</option>
+                        <option value="12">Every 12 hours</option>
+                        <option value="6">Every 6 hours</option>
+                        <option value="1">Every hour</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Default Language</label>
+                      <select id="settingLanguage" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+                        <option value="en">English</option>
+                        <option value="yo">Yoruba</option>
+                        <option value="ig">Igbo</option>
+                        <option value="ha">Hausa</option>
+                        <option value="fr">French</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="flex items-center gap-4">
+                  <button type="submit"
+                    class="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 active:scale-95 text-white px-8 py-3.5 rounded-xl font-bold transition-all flex items-center gap-2 shadow-lg shadow-orange-500/20">
+                    <i class="fas fa-save"></i> Save Settings
+                  </button>
+                  <button type="button" onclick="resetSettings()"
+                    class="bg-white/5 hover:bg-white/10 text-neutral-400 hover:text-white px-6 py-3.5 rounded-xl font-semibold transition-all border border-white/10">
+                    <i class="fas fa-undo mr-1"></i> Reset to Default
+                  </button>
+                  <span id="settingsSaveIndicator" class="hidden text-green-400 text-sm font-semibold flex items-center gap-1">
+                    <i class="fas fa-check-circle"></i> Saved!
+                  </span>
+                </div>
+              </form>
+            </div>
+
           </div>
         </div>
       </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════ -->
+    <!-- MODALS -->
+    <!-- ═══════════════════════════════════════════════════ -->
+
     <!-- Edit Article Modal -->
-    <div id="editModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-neutral-900 border border-white/20 rounded-2xl w-full max-w-2xl max-h-screen overflow-y-auto">
+    <div id="editModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-neutral-900 border border-white/20 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div class="p-6 border-b border-white/10 flex items-center justify-between">
           <h3 class="text-white font-bold text-xl">Edit Article</h3>
-          <button onclick="closeModal('editModal')" class="text-neutral-400 hover:text-white transition-colors">
+          <button onclick="closeModal('editModal')" class="text-neutral-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
             <i class="fas fa-times text-xl"></i>
           </button>
         </div>
-        <div class="p-6 space-y-4" id="editModalContent">
-          <!-- Populated dynamically -->
-        </div>
+        <div class="p-6" id="editModalContent"></div>
       </div>
     </div>
 
-    <!-- Add Stream Modal -->
-    <div id="addStreamModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <!-- Add/Edit Stream Modal -->
+    <div id="addStreamModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-neutral-900 border border-white/20 rounded-2xl w-full max-w-lg">
         <div class="p-6 border-b border-white/10 flex items-center justify-between">
-          <h3 class="text-white font-bold text-xl">Add New Stream</h3>
-          <button onclick="closeModal('addStreamModal')" class="text-neutral-400 hover:text-white transition-colors">
+          <h3 class="text-white font-bold text-xl" id="streamModalTitle">Add New Stream</h3>
+          <button onclick="closeModal('addStreamModal')" class="text-neutral-400 hover:text-white transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
             <i class="fas fa-times text-xl"></i>
           </button>
         </div>
         <form onsubmit="saveNewStream(event)" class="p-6 space-y-4">
           <div>
-            <label class="block text-neutral-400 text-sm mb-2">Stream Name</label>
-            <input type="text" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" placeholder="e.g. OFURE GOSPEL STATION">
+            <label class="block text-neutral-400 text-sm mb-2">Stream Name *</label>
+            <input type="text" id="streamName" required
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors"
+              placeholder="e.g. OFURE GOSPEL STATION">
           </div>
           <div>
-            <label class="block text-neutral-400 text-sm mb-2">Stream URL</label>
-            <input type="url" required class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" placeholder="https://stream.example.com/stream">
+            <label class="block text-neutral-400 text-sm mb-2">Stream URL *</label>
+            <input type="url" id="streamUrl" required
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors"
+              placeholder="https://stream.zeno.fm/...">
           </div>
           <div>
             <label class="block text-neutral-400 text-sm mb-2">Genre / Description</label>
-            <input type="text" class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500" placeholder="e.g. Afrobeats • R&B • Gospel">
+            <input type="text" id="streamGenre"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors"
+              placeholder="e.g. Afrobeats • R&amp;B • Gospel">
           </div>
-          <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors">
-            <i class="fas fa-plus mr-2"></i>Add Stream
-          </button>
+          <div>
+            <label class="block text-neutral-400 text-sm mb-2">Status</label>
+            <select id="streamStatus" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+              <option value="live">🟢 Live</option>
+              <option value="offline">🔴 Offline</option>
+              <option value="scheduled">🟡 Scheduled</option>
+            </select>
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="submit"
+              class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors">
+              <i class="fas fa-save mr-2"></i><span id="streamSaveBtnLabel">Add Stream</span>
+            </button>
+            <button type="button" onclick="closeModal('addStreamModal')"
+              class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors">
+              Cancel
+            </button>
+          </div>
         </form>
       </div>
     </div>
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 hidden">
-      <div class="bg-neutral-800 border border-white/20 rounded-xl px-5 py-3 flex items-center gap-3 shadow-2xl">
-        <i id="toastIcon" class="fas fa-check-circle text-green-400"></i>
-        <span id="toastMsg" class="text-white text-sm font-medium"></span>
+    <!-- Schedule Modal -->
+    <div id="scheduleModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-neutral-900 border border-white/20 rounded-2xl w-full max-w-lg">
+        <div class="p-6 border-b border-white/10 flex items-center justify-between">
+          <h3 class="text-white font-bold text-xl" id="scheduleModalTitle">Add Show</h3>
+          <button onclick="closeModal('scheduleModal')" class="text-neutral-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <form onsubmit="saveScheduleEntry(event)" class="p-6 space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Air Time *</label>
+              <input type="text" id="schedTime" required placeholder="e.g. 6:00 AM"
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+            </div>
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Days</label>
+              <input type="text" id="schedDays" placeholder="e.g. Mon-Fri"
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+            </div>
+          </div>
+          <div>
+            <label class="block text-neutral-400 text-sm mb-2">Show Name *</label>
+            <input type="text" id="schedShow" required placeholder="e.g. Morning Vibes"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Host / DJ</label>
+              <input type="text" id="schedHost" placeholder="e.g. DJ Alex"
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+            </div>
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Status</label>
+              <select id="schedStatus" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+                <option value="scheduled">Scheduled</option>
+                <option value="live">On Air</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-neutral-400 text-sm mb-2">Genre</label>
+            <input type="text" id="schedGenre" placeholder="e.g. Afrobeats / Gospel"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button type="submit" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-semibold transition-colors">
+              <i class="fas fa-save mr-2"></i>Save Show
+            </button>
+            <button type="button" onclick="closeModal('scheduleModal')" class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors">Cancel</button>
+          </div>
+        </form>
       </div>
     </div>
+
+    <!-- Edit Podcast Modal -->
+    <div id="editPodcastModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-neutral-900 border border-white/20 rounded-2xl w-full max-w-lg">
+        <div class="p-6 border-b border-white/10 flex items-center justify-between">
+          <h3 class="text-white font-bold text-xl">Edit Episode</h3>
+          <button onclick="closeModal('editPodcastModal')" class="text-neutral-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="p-6 space-y-4">
+          <input type="hidden" id="editPodcastId">
+          <div>
+            <label class="block text-neutral-400 text-sm mb-2">Episode Title *</label>
+            <input type="text" id="editPodcastTitle"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Episode Number</label>
+              <input type="number" id="editPodcastEp" min="1" placeholder="1"
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+            </div>
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Season</label>
+              <input type="number" id="editPodcastSeason" min="1" value="1"
+                class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+            </div>
+          </div>
+          <div>
+            <label class="block text-neutral-400 text-sm mb-2">Description / Show Notes</label>
+            <textarea id="editPodcastDesc" rows="3"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 resize-none"
+              placeholder="What is this episode about?"></textarea>
+          </div>
+          <div>
+            <label class="block text-neutral-400 text-sm mb-2">Tags (comma separated)</label>
+            <input type="text" id="editPodcastTags" placeholder="afrobeats, music, entertainment"
+              class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500">
+          </div>
+          <div class="flex gap-3 pt-2">
+            <button onclick="savePodcastEdit()"
+              class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-xl font-bold transition-colors">
+              <i class="fas fa-save mr-2"></i>Save Episode
+            </button>
+            <button onclick="closeModal('editPodcastModal')"
+              class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="globalToast" style="position:fixed;bottom:24px;right:24px;z-index:9999;transition:all .3s ease;transform:translateY(20px);opacity:0;pointer-events:none;"></div>
   </div>
   `
 }
