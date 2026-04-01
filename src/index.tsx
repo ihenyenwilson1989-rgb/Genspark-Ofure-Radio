@@ -11,6 +11,23 @@ const app = new Hono()
 
 app.use('/static/*', serveStatic({ root: './public' }))
 
+// Serve favicon inline
+app.get('/favicon.svg', (c) => {
+  c.header('Content-Type', 'image/svg+xml')
+  return c.body(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" style="stop-color:#f97316"/>
+    <stop offset="100%" style="stop-color:#7c3aed"/>
+  </linearGradient></defs>
+  <circle cx="50" cy="50" r="48" fill="url(#g)"/>
+  <text x="50" y="65" font-family="Arial" font-size="44" font-weight="bold" fill="white" text-anchor="middle">OR</text>
+</svg>`)
+})
+
+app.get('/favicon.ico', (c) => {
+  return c.redirect('/favicon.svg', 301)
+})
+
 // Home page
 app.get('/', (c) => {
   return c.html(layout(homePage(), 'OFURE RADIO - Where It All Began'))
