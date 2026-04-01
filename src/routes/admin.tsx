@@ -925,13 +925,42 @@ export function adminPage(): string {
               class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-orange-500 transition-colors"
               placeholder="e.g. Afrobeats • R&amp;B • Gospel">
           </div>
-          <div>
-            <label class="block text-neutral-400 text-sm mb-2">Status</label>
-            <select id="streamStatus" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
-              <option value="live">🟢 Live</option>
-              <option value="offline">🔴 Offline</option>
-              <option value="scheduled">🟡 Scheduled</option>
-            </select>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Status</label>
+              <select id="streamStatus" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+                <option value="live">🟢 Live</option>
+                <option value="offline">🔴 Offline</option>
+                <option value="scheduled">🟡 Scheduled</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-neutral-400 text-sm mb-2">Bitrate</label>
+              <select id="streamBitrate" class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-orange-500 transition-colors">
+                <option value="32">32 kbps — Low (mobile data)</option>
+                <option value="48">48 kbps — Economy</option>
+                <option value="64">64 kbps — Standard</option>
+                <option value="96">96 kbps — Good quality</option>
+                <option value="128" selected>128 kbps — Recommended</option>
+                <option value="160">160 kbps — High quality</option>
+                <option value="192">192 kbps — Studio quality</option>
+                <option value="256">256 kbps — Broadcast HD</option>
+                <option value="320">320 kbps — Maximum fidelity</option>
+              </select>
+            </div>
+          </div>
+          <!-- Test / Play stream preview inside modal -->
+          <div class="bg-black/30 border border-white/10 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-neutral-400 text-sm font-medium"><i class="fas fa-headphones mr-2 text-orange-400"></i>Test Stream Preview</span>
+              <button type="button" onclick="testStreamModal()"
+                class="flex items-center gap-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 hover:text-green-300 px-4 py-2 rounded-lg text-sm font-semibold transition-colors border border-green-500/30">
+                <i class="fas fa-play text-xs" id="modalTestIcon"></i>
+                <span id="modalTestLabel">Test Stream</span>
+              </button>
+            </div>
+            <div id="modalStreamStatus" class="text-xs text-neutral-600 italic">Enter a stream URL above, then click Test Stream to preview it here.</div>
+            <audio id="modalStreamAudio" preload="none" class="hidden"></audio>
           </div>
           <div class="flex gap-3 pt-2">
             <button type="submit"

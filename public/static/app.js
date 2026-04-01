@@ -12,9 +12,9 @@ const State = {
   currentStreamName: 'OFURE RADIO MAIN',
   volume: 0.8,
   streams: JSON.parse(localStorage.getItem('ofure_streams') || 'null') || [
-    { id: 1, name: 'OFURE RADIO MAIN',     url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Afrobeats • R&B • Gospel',        status: 'live',    listeners: 247 },
-    { id: 2, name: 'OFURE GOSPEL STATION', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Gospel • Worship • Inspirational', status: 'live',    listeners: 89  },
-    { id: 3, name: 'OFURE URBAN BEATS',    url: '',                                      genre: 'Hip-Hop • Trap • Urban',          status: 'offline', listeners: 0   }
+    { id: 1, name: 'OFURE RADIO MAIN',     url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Afrobeats • R&B • Gospel',        status: 'live',    listeners: 247, bitrate: 128 },
+    { id: 2, name: 'OFURE GOSPEL STATION', url: 'https://stream.zeno.fm/f3wvbbqmdg8uv', genre: 'Gospel • Worship • Inspirational', status: 'live',    listeners: 89,  bitrate: 128 },
+    { id: 3, name: 'OFURE URBAN BEATS',    url: '',                                      genre: 'Hip-Hop • Trap • Urban',          status: 'offline', listeners: 0,   bitrate: 64  }
   ],
   schedule: JSON.parse(localStorage.getItem('ofure_schedule') || 'null') || [
     { id:1, time:'6:00 AM',  show:'Morning Vibes',       host:'DJ Alex',    genre:'Afrobeats / Gospel',       days:'Mon-Fri',    active:true  },
@@ -110,6 +110,15 @@ function openModal(id) {
 function closeModal(id) {
   const m = $(id);
   if (m) { m.classList.add('hidden'); document.body.style.overflow = ''; }
+  // Stop modal stream preview when the Add/Edit stream modal is closed
+  if (id === 'addStreamModal') {
+    const ma = document.getElementById('modalStreamAudio');
+    if (ma) { try { ma.pause(); } catch(e){} ma.src = ''; }
+    const ml = document.getElementById('modalTestLabel');   if (ml) ml.textContent = 'Test Stream';
+    const mi = document.getElementById('modalTestIcon');    if (mi) mi.className = 'fas fa-play text-xs';
+    const ms = document.getElementById('modalStreamStatus');
+    if (ms) ms.textContent = 'Enter a stream URL above, then click Test Stream to preview it here.';
+  }
 }
 function closeAllModals() {
   $$('.fixed.inset-0.z-50').forEach(m => {
@@ -703,8 +712,8 @@ function renderStreams() {
   const tl = $('totalListenerCount');if (tl) tl.textContent = totalListeners;
 
   list.innerHTML = State.streams.map(s => `
-    <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 hover:border-orange-500/20 transition-all stream-card" data-id="${s.id}">
-      <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+    <div class="bg-neutral-900 border border-white/10 rounded-xl p-6 hover:border-orange-500/20 transition-all stream-card" data-id="${s.id}" id="stream-card-${s.id}">
+      <div class="flex flex-col sm:flex-row sm:items-start gap-4">
         <div class="flex items-center gap-3 flex-1 min-w-0">
           <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
             <i class="fas fa-radio text-orange-400 text-xl"></i>
@@ -715,39 +724,175 @@ function renderStreams() {
               <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${s.status==='live'?'bg-green-500/20 text-green-400':s.status==='scheduled'?'bg-yellow-500/20 text-yellow-400':'bg-red-500/20 text-red-400'}">
                 ${s.status==='live'?'● LIVE':s.status==='scheduled'?'⏰ SCHEDULED':'○ OFFLINE'}
               </span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 font-mono">
+                <i class="fas fa-signal mr-1"></i>${s.bitrate || 128} kbps
+              </span>
             </div>
             <p class="text-neutral-400 text-sm stream-genre">${_escHtml(s.genre)}</p>
-            <p class="text-neutral-600 text-xs truncate stream-url">${s.url ? s.url : '<em class="text-neutral-700">No URL set</em>'}</p>
+            <p class="text-neutral-600 text-xs truncate stream-url mt-0.5">${s.url ? s.url : '<em class="text-neutral-700">No URL set — click Edit to add one</em>'}</p>
           </div>
         </div>
-        <div class="flex items-center gap-4">
-          ${s.status==='live' ? `<span class="text-neutral-400 text-sm"><i class="fas fa-users mr-1 text-green-400"></i>${s.listeners}</span>` : ''}
+        <div class="flex flex-col gap-2 items-end flex-shrink-0">
+          ${s.status==='live' ? `<span class="text-neutral-400 text-sm"><i class="fas fa-users mr-1 text-green-400"></i>${s.listeners} listeners</span>` : ''}
           <div class="flex gap-2">
-            <button onclick="testStream('${s.url}','${_escHtml(s.name)}')"
-              class="text-neutral-400 hover:text-green-400 p-2 rounded-lg hover:bg-green-500/10 transition-colors" title="Test / Play Stream">
-              <i class="fas fa-play text-sm"></i>
+            <button onclick="testStream('${s.url}','${_escHtml(s.name)}',${s.id})" id="testBtn-${s.id}"
+              class="flex items-center gap-1.5 text-neutral-400 hover:text-green-400 px-3 py-2 rounded-lg hover:bg-green-500/10 transition-colors border border-white/10 hover:border-green-500/30 text-xs font-medium" title="Test / Play Stream">
+              <i class="fas fa-play text-xs" id="testIcon-${s.id}"></i>
+              <span>Test</span>
             </button>
             <button onclick="openEditStream(${s.id})"
-              class="text-orange-400 hover:text-orange-300 p-2 rounded-lg hover:bg-orange-500/10 transition-colors font-medium" title="Edit Stream">
-              <i class="fas fa-edit text-sm"></i>
+              class="flex items-center gap-1.5 text-orange-400 hover:text-orange-300 px-3 py-2 rounded-lg hover:bg-orange-500/10 transition-colors border border-white/10 hover:border-orange-500/30 text-xs font-medium" title="Edit Stream">
+              <i class="fas fa-edit text-xs"></i>
+              <span>Edit</span>
             </button>
             <button onclick="toggleStreamStatus(${s.id})"
-              class="text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-blue-500/10 transition-colors" title="Toggle Live / Offline">
+              class="text-blue-400 hover:text-blue-300 p-2 rounded-lg hover:bg-blue-500/10 transition-colors border border-white/10" title="Toggle Live / Offline">
               <i class="fas fa-power-off text-sm"></i>
             </button>
             <button onclick="deleteStream(${s.id})"
-              class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors" title="Delete Stream">
+              class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors border border-white/10" title="Delete Stream">
               <i class="fas fa-trash text-sm"></i>
             </button>
           </div>
         </div>
       </div>
+      <!-- Inline stream test player (shown when Test is clicked) -->
+      <div id="streamPlayer-${s.id}" class="hidden mt-4 bg-black/40 border border-green-500/20 rounded-xl p-3">
+        <div class="flex items-center gap-3">
+          <div class="w-2 h-2 rounded-full bg-green-400 animate-pulse flex-shrink-0"></div>
+          <span class="text-green-400 text-xs font-semibold flex-1">▶ TESTING: ${_escHtml(s.name)}</span>
+          <span class="text-blue-400 text-xs font-mono border border-blue-500/20 bg-blue-500/10 px-2 py-0.5 rounded">${s.bitrate || 128} kbps</span>
+          <button onclick="stopTestStream(${s.id})" class="text-red-400 hover:text-red-300 text-xs px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-colors border border-red-500/20 font-medium">
+            <i class="fas fa-stop mr-1"></i>Stop
+          </button>
+        </div>
+        <audio id="streamAudio-${s.id}" preload="none" class="hidden"></audio>
+      </div>
     </div>`).join('');
 }
 
-function testStream(url, name) {
-  if (!url || url === '') { showToast('No stream URL configured for this stream.', 'warning'); return; }
-  playStream(url, name || 'Test Stream');
+// ─── STREAM TEST PLAYER ───────────────────────────────
+// Tracks active test audio instances { streamId: audioElement }
+const _testAudioMap = {};
+
+function testStream(url, name, streamId) {
+  if (!url || url === '') {
+    showToast('No stream URL configured. Edit the stream and add a URL first.', 'warning');
+    return;
+  }
+  // Toggle: if already playing this stream, stop it
+  if (_testAudioMap[streamId]) {
+    stopTestStream(streamId);
+    return;
+  }
+  // Stop any other test streams
+  Object.keys(_testAudioMap).forEach(id => stopTestStream(id));
+
+  const audio      = document.getElementById('streamAudio-' + streamId);
+  const playerDiv  = document.getElementById('streamPlayer-' + streamId);
+  const testBtn    = document.getElementById('testBtn-' + streamId);
+  const testIcon   = document.getElementById('testIcon-' + streamId);
+
+  if (!audio) {
+    // Fallback to main player
+    playStream(url, name || 'Test Stream');
+    return;
+  }
+
+  // Loading state
+  if (testIcon) testIcon.className = 'fas fa-spinner fa-spin text-xs';
+  if (testBtn)  { testBtn.classList.remove('text-neutral-400'); testBtn.classList.add('text-yellow-400'); }
+  showToast('\u23F3 Connecting to ' + (name || 'stream') + '\u2026', 'info');
+
+  audio.src    = url;
+  audio.volume = State.volume || 0.8;
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        _testAudioMap[streamId] = audio;
+        if (playerDiv) playerDiv.classList.remove('hidden');
+        if (testIcon)  testIcon.className = 'fas fa-stop text-xs';
+        if (testBtn)   {
+          testBtn.classList.remove('text-neutral-400','text-yellow-400');
+          testBtn.classList.add('text-green-400');
+          testBtn.title = 'Stop Test Stream';
+        }
+        showToast('\u25B6 Testing: ' + (name || 'stream') + ' \u2014 audio is live!', 'success');
+      })
+      .catch(err => {
+        console.warn('Stream test error:', err);
+        if (testIcon) testIcon.className = 'fas fa-play text-xs';
+        if (testBtn)  { testBtn.classList.remove('text-yellow-400'); testBtn.classList.add('text-neutral-400'); }
+        showToast('\u26A0 Could not connect. Verify the URL is a direct audio stream (Zeno.fm, Icecast, SHOUTcast, .mp3/.aac).', 'error');
+      });
+  }
+}
+
+function stopTestStream(streamId) {
+  const audio = _testAudioMap[streamId] || document.getElementById('streamAudio-' + streamId);
+  if (audio) { try { audio.pause(); } catch(e){} audio.src = ''; }
+  delete _testAudioMap[streamId];
+  const playerDiv = document.getElementById('streamPlayer-' + streamId);
+  const testBtn   = document.getElementById('testBtn-' + streamId);
+  const testIcon  = document.getElementById('testIcon-' + streamId);
+  if (playerDiv) playerDiv.classList.add('hidden');
+  if (testIcon)  testIcon.className = 'fas fa-play text-xs';
+  if (testBtn)   {
+    testBtn.classList.remove('text-green-400','text-yellow-400');
+    testBtn.classList.add('text-neutral-400');
+    testBtn.title = 'Test / Play Stream';
+  }
+  showToast('Stream test stopped.', 'info');
+}
+
+// Test stream from inside the Add/Edit modal
+function testStreamModal() {
+  const url    = document.getElementById('streamUrl') ? document.getElementById('streamUrl').value.trim() : '';
+  const name   = document.getElementById('streamName') ? document.getElementById('streamName').value.trim() : 'Preview';
+  const audio  = document.getElementById('modalStreamAudio');
+  const label  = document.getElementById('modalTestLabel');
+  const icon   = document.getElementById('modalTestIcon');
+  const status = document.getElementById('modalStreamStatus');
+
+  if (!url) {
+    showToast('Enter a Stream URL first, then click Test Stream.', 'warning');
+    if (status) status.innerHTML = '<span class="text-yellow-400"><i class="fas fa-exclamation-triangle mr-1"></i>No URL entered. Fill in the Stream URL field above.</span>';
+    return;
+  }
+
+  // Toggle: stop if already playing
+  if (audio && !audio.paused) {
+    audio.pause(); audio.src = '';
+    if (label)  label.textContent = 'Test Stream';
+    if (icon)   icon.className = 'fas fa-play text-xs';
+    if (status) status.innerHTML = '<span class="text-neutral-500">Stream preview stopped.</span>';
+    return;
+  }
+
+  if (status) status.innerHTML = '<span class="text-yellow-400"><i class="fas fa-spinner fa-spin mr-1"></i>Connecting to stream\u2026</span>';
+  if (label)  label.textContent = 'Connecting\u2026';
+  if (icon)   icon.className = 'fas fa-spinner fa-spin text-xs';
+
+  if (!audio) return;
+  audio.src    = url;
+  audio.volume = State.volume || 0.8;
+  const p = audio.play();
+  if (p !== undefined) {
+    p.then(() => {
+      if (label)  label.textContent = 'Stop Preview';
+      if (icon)   icon.className = 'fas fa-stop text-xs';
+      if (status) status.innerHTML =
+        '<span class="text-green-400"><i class="fas fa-circle-notch fa-spin mr-1"></i>\u25B6 Playing: <strong>' + _escHtml(name) + '</strong> \u2014 stream is live!</span>';
+      showToast('\u25B6 Stream preview: ' + name + ' is live!', 'success');
+    }).catch(err => {
+      console.warn('Modal test error:', err);
+      if (label)  label.textContent = 'Test Stream';
+      if (icon)   icon.className = 'fas fa-play text-xs';
+      if (status) status.innerHTML =
+        '<span class="text-red-400"><i class="fas fa-exclamation-triangle mr-1"></i>Could not connect. Check the URL \u2014 must be a direct audio stream (Zeno.fm, Icecast, SHOUTcast, .mp3/.aac).</span>';
+    });
+  }
 }
 
 function showAddStreamModal() {
@@ -756,8 +901,14 @@ function showAddStreamModal() {
   const btnLabel = $('streamSaveBtnLabel');
   if (titleEl)  titleEl.textContent  = 'Add New Stream';
   if (btnLabel) btnLabel.textContent = 'Add Stream';
-  const fields = { streamName:'', streamUrl:'', streamGenre:'', streamStatus:'live' };
-  Object.entries(fields).forEach(([id, val]) => { const el=$(id); if(el) el.value=val; });
+  const fields = { streamName:'', streamUrl:'', streamGenre:'', streamStatus:'live', streamBitrate:'128' };
+  Object.entries(fields).forEach(([id, val]) => { const el=$( id); if(el) el.value=val; });
+  // Reset modal test preview
+  const ma = $('modalStreamAudio'); if (ma) { try{ma.pause();}catch(e){} ma.src=''; }
+  const ml = $('modalTestLabel');   if (ml) ml.textContent = 'Test Stream';
+  const mi = $('modalTestIcon');    if (mi) mi.className = 'fas fa-play text-xs';
+  const ms = $('modalStreamStatus');
+  if (ms) ms.textContent = 'Enter a stream URL above, then click Test Stream to preview it here.';
   openModal('addStreamModal');
   setTimeout(() => { const n = $('streamName'); if (n) n.focus(); }, 100);
 }
@@ -765,36 +916,48 @@ function showAddStreamModal() {
 function openEditStream(id) {
   const s = State.streams.find(x => x.id === id);
   if (!s) { showToast('Stream not found.', 'error'); return; }
+  // Stop any active test for this stream
+  if (_testAudioMap && _testAudioMap[id]) stopTestStream(id);
   State.editingStreamId = id;
   const titleEl  = $('streamModalTitle');
   const btnLabel = $('streamSaveBtnLabel');
   if (titleEl)  titleEl.textContent  = 'Edit Stream';
   if (btnLabel) btnLabel.textContent = 'Save Changes';
-  const sn = $('streamName');   if (sn) sn.value = s.name;
-  const su = $('streamUrl');    if (su) su.value = s.url;
-  const sg = $('streamGenre');  if (sg) sg.value = s.genre;
-  const ss = $('streamStatus'); if (ss) ss.value = s.status;
+  const sn = $('streamName');    if (sn) sn.value = s.name;
+  const su = $('streamUrl');     if (su) su.value = s.url;
+  const sg = $('streamGenre');   if (sg) sg.value = s.genre;
+  const ss = $('streamStatus');  if (ss) ss.value = s.status;
+  const sb = $('streamBitrate'); if (sb) sb.value = String(s.bitrate || 128);
+  // Reset modal test preview
+  const ma = $('modalStreamAudio'); if (ma) { try{ma.pause();}catch(e){} ma.src=''; }
+  const ml = $('modalTestLabel');   if (ml) ml.textContent = 'Test Stream';
+  const mi = $('modalTestIcon');    if (mi) mi.className = 'fas fa-play text-xs';
+  const ms = $('modalStreamStatus');
+  if (ms) ms.innerHTML = '<span class="text-neutral-500">Current URL: <span class="text-orange-400 font-mono text-xs">' + _escHtml(s.url || 'not set') + '</span> — click Test Stream to verify.</span>';
   openModal('addStreamModal');
   setTimeout(() => { if (sn) sn.focus(); }, 100);
 }
 
 function saveNewStream(e) {
   e.preventDefault();
-  const name   = $('streamName')?.value.trim();
-  const url    = $('streamUrl')?.value.trim();
-  const genre  = $('streamGenre')?.value.trim() || 'General';
-  const status = $('streamStatus')?.value || 'live';
+  const name    = $('streamName')?.value.trim();
+  const url     = $('streamUrl')?.value.trim();
+  const genre   = $('streamGenre')?.value.trim() || 'General';
+  const status  = $('streamStatus')?.value || 'live';
+  const bitrate = parseInt($('streamBitrate')?.value || '128', 10);
   if (!name) { showToast('Stream name is required.', 'error'); return; }
   if (!url)  { showToast('Stream URL is required.', 'error'); return; }
+  // Stop modal audio preview if playing
+  const ma = $('modalStreamAudio'); if (ma) { try{ma.pause();}catch(e){} ma.src=''; }
 
   if (State.editingStreamId) {
     const s = State.streams.find(x => x.id === State.editingStreamId);
-    if (s) { s.name = name; s.url = url; s.genre = genre; s.status = status; }
-    showToast(`Stream "${name}" updated! ✅`, 'success');
+    if (s) { s.name = name; s.url = url; s.genre = genre; s.status = status; s.bitrate = bitrate; }
+    showToast('Stream "' + name + '" updated! Bitrate: ' + bitrate + ' kbps \u2705', 'success');
   } else {
     const newId = Date.now();
-    State.streams.push({ id: newId, name, url, genre, status, listeners: 0 });
-    showToast(`Stream "${name}" added! ✅`, 'success');
+    State.streams.push({ id: newId, name, url, genre, status, listeners: 0, bitrate });
+    showToast('Stream "' + name + '" added at ' + bitrate + ' kbps! \u2705', 'success');
   }
   State.editingStreamId = null;
   saveState('streams');
