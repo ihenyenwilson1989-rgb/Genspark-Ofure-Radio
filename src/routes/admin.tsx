@@ -506,6 +506,64 @@ export function adminPage(): string {
                 </div>
               </div>
 
+              <!-- ══ PODCAST GENERATOR ══ -->
+              <div class="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl overflow-hidden mb-6">
+                <div class="p-5 border-b border-yellow-500/20">
+                  <div class="flex items-center justify-between flex-wrap gap-3">
+                    <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                        <i class="fas fa-magic text-yellow-400 text-lg"></i>
+                      </div>
+                      <div>
+                        <h2 class="text-white font-bold">Podcast Episode Generator</h2>
+                        <p class="text-neutral-400 text-xs">Generate a full episode from an AI outline — fill in the details, then publish to the Podcast page</p>
+                      </div>
+                    </div>
+                    <button onclick="openPodcastGenerator()"
+                      class="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2.5 px-5 rounded-xl text-sm transition-colors shadow-lg">
+                      <i class="fas fa-wand-magic-sparkles"></i> Generate Episode
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quick-fill from AI Studio outline -->
+                <div class="p-5 grid md:grid-cols-3 gap-4">
+                  <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <i class="fas fa-robot text-purple-400 text-sm"></i>
+                      <span class="text-white text-xs font-semibold">From AI Studio</span>
+                    </div>
+                    <p class="text-neutral-500 text-xs leading-relaxed">Click <strong class="text-yellow-400">Generate Outline</strong> in the AI Studio Podcast AI, then come back here to convert it into a real episode.</p>
+                    <button onclick="showPanel('ai'); setTimeout(()=>activateAIAgent('podcast'),200)"
+                      class="mt-3 w-full text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 rounded-lg py-2 transition-colors font-semibold">
+                      <i class="fas fa-robot mr-1"></i> Open Podcast AI
+                    </button>
+                  </div>
+                  <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <i class="fas fa-file-alt text-blue-400 text-sm"></i>
+                      <span class="text-white text-xs font-semibold">Paste Outline</span>
+                    </div>
+                    <p class="text-neutral-500 text-xs leading-relaxed">Copy an outline from the AI chat or write your own, then paste it into the generator to build the episode metadata.</p>
+                    <button onclick="openPodcastGenerator()"
+                      class="mt-3 w-full text-xs bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 rounded-lg py-2 transition-colors font-semibold">
+                      <i class="fas fa-paste mr-1"></i> Paste & Generate
+                    </button>
+                  </div>
+                  <div class="bg-white/5 border border-white/10 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-2">
+                      <i class="fas fa-paper-plane text-green-400 text-sm"></i>
+                      <span class="text-white text-xs font-semibold">Publish to Page</span>
+                    </div>
+                    <p class="text-neutral-500 text-xs leading-relaxed">Generated episodes go into the Episodes list below. Click <strong class="text-green-400">Publish</strong> to make them live on the Podcast page.</p>
+                    <a href="/podcast" target="_blank"
+                      class="mt-3 w-full text-xs bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-500/30 rounded-lg py-2 transition-colors font-semibold flex items-center justify-center gap-1">
+                      <i class="fas fa-external-link-alt"></i> View Podcast Page
+                    </a>
+                  </div>
+                </div>
+              </div>
+
               <!-- Episodes list -->
               <div class="bg-neutral-900 border border-white/10 rounded-xl overflow-hidden">
                 <div class="p-4 border-b border-white/10 flex items-center justify-between">
@@ -513,15 +571,130 @@ export function adminPage(): string {
                     <i class="fas fa-list text-orange-400"></i> Episodes
                     <span id="episodeCount" class="bg-orange-500/20 text-orange-400 text-xs px-2 py-0.5 rounded-full">0</span>
                   </h2>
-                  <div class="flex items-center gap-2 text-neutral-500 text-xs">
-                    <i class="fas fa-info-circle"></i> Click edit to rename/update episodes
+                  <div class="flex items-center gap-3">
+                    <a href="/podcast" target="_blank" class="text-neutral-500 hover:text-orange-400 text-xs transition-colors flex items-center gap-1">
+                      <i class="fas fa-external-link-alt"></i> Podcast Page
+                    </a>
+                    <span class="text-neutral-500 text-xs hidden sm:flex items-center gap-1">
+                      <i class="fas fa-info-circle"></i> Click edit to rename/update
+                    </span>
                   </div>
                 </div>
                 <div id="podcastList">
                   <div class="text-center py-12 text-neutral-500">
                     <i class="fas fa-microphone text-5xl mb-3 text-neutral-700 block"></i>
                     <p class="font-medium">No episodes yet</p>
-                    <p class="text-xs mt-1">Start recording or upload an audio file above</p>
+                    <p class="text-xs mt-1">Start recording, upload audio, or use the Episode Generator above</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ══ PODCAST GENERATOR MODAL ══ -->
+            <div id="podcastGeneratorModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto">
+              <div class="bg-neutral-900 border border-yellow-500/30 rounded-2xl w-full max-w-3xl my-8">
+                <div class="p-6 border-b border-white/10 flex items-center justify-between">
+                  <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                      <i class="fas fa-magic text-yellow-400"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-white font-bold text-lg">Podcast Episode Generator</h3>
+                      <p class="text-neutral-500 text-xs">Fill in details or paste an AI outline to create a publishable episode</p>
+                    </div>
+                  </div>
+                  <button onclick="closeModal('podcastGeneratorModal')" class="text-neutral-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 transition-colors">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                <div class="p-6 space-y-5">
+                  <!-- Episode metadata -->
+                  <div class="grid md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                      <label class="block text-neutral-400 text-sm mb-2">Episode Title <span class="text-red-400">*</span></label>
+                      <input type="text" id="genEpTitle" placeholder="e.g. How Afrobeats Is Conquering the World"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Episode Number</label>
+                      <input type="number" id="genEpNumber" min="1" placeholder="e.g. 12"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Season</label>
+                      <input type="number" id="genEpSeason" min="1" value="1"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Host / DJ</label>
+                      <input type="text" id="genEpHost" placeholder="e.g. DJ Alex"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Duration (estimate)</label>
+                      <input type="text" id="genEpDuration" placeholder="e.g. 22 min"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors">
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Genre / Category</label>
+                      <select id="genEpCategory"
+                        class="w-full bg-neutral-800 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-yellow-500 transition-colors">
+                        <option value="Music">Music</option>
+                        <option value="Culture">Culture</option>
+                        <option value="Interview">Interview</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Gospel">Gospel</option>
+                        <option value="Talk">Talk Radio</option>
+                        <option value="News">News &amp; Current Affairs</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-neutral-400 text-sm mb-2">Tags (comma-separated)</label>
+                      <input type="text" id="genEpTags" placeholder="afrobeats, culture, music"
+                        class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors">
+                    </div>
+                  </div>
+
+                  <!-- Show notes / description -->
+                  <div>
+                    <label class="block text-neutral-400 text-sm mb-2">Episode Description / Show Notes</label>
+                    <textarea id="genEpDesc" rows="4"
+                      class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors resize-none"
+                      placeholder="A brief description of what listeners can expect in this episode..."></textarea>
+                  </div>
+
+                  <!-- Outline / Script -->
+                  <div>
+                    <div class="flex items-center justify-between mb-2">
+                      <label class="text-neutral-400 text-sm">AI Outline / Script <span class="text-neutral-600 text-xs">(paste from AI Studio → Podcast AI)</span></label>
+                      <button onclick="autoFillFromAI()" class="text-xs text-yellow-400 hover:text-yellow-300 transition-colors flex items-center gap-1">
+                        <i class="fas fa-magic"></i> Auto-fill from AI Chat
+                      </button>
+                    </div>
+                    <textarea id="genEpOutline" rows="8"
+                      class="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-neutral-500 focus:outline-none focus:border-yellow-500 transition-colors resize-none font-mono text-xs"
+                      placeholder="[00:00–02:00] INTRO&#10;Host welcome and episode teaser&#10;&#10;[02:00–08:00] SEGMENT 1: Topic...&#10;• Point 1&#10;• Point 2&#10;&#10;...paste your AI-generated outline here"></textarea>
+                  </div>
+
+                  <!-- Publish toggle -->
+                  <div class="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-4">
+                    <input type="checkbox" id="genEpPublish" class="w-4 h-4 accent-orange-500" checked>
+                    <div>
+                      <label for="genEpPublish" class="text-white text-sm font-semibold cursor-pointer">Publish to Podcast Page immediately</label>
+                      <p class="text-neutral-500 text-xs">Unchecked = saved as draft in Episodes list only</p>
+                    </div>
+                  </div>
+
+                  <!-- Action buttons -->
+                  <div class="flex gap-3 pt-2">
+                    <button onclick="generateAndSavePodcastEpisode()"
+                      class="flex-1 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 text-sm">
+                      <i class="fas fa-magic"></i> Generate &amp; Save Episode
+                    </button>
+                    <button onclick="closeModal('podcastGeneratorModal')"
+                      class="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold transition-colors text-sm">
+                      Cancel
+                    </button>
                   </div>
                 </div>
               </div>

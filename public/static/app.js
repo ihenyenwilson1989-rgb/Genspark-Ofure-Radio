@@ -61,7 +61,8 @@ const State = {
   recordTimer:       null,
   recordSeconds:     0,
   listeners:         247 + Math.floor(Math.random() * 30),
-  currentAIAgent:    'assistant'
+  currentAIAgent:    'assistant',
+  lastAIReply:       ''   // stores last raw AI reply text for Podcast Generator auto-fill
 };
 
 function saveState(key) {
@@ -78,6 +79,8 @@ function saveState(key) {
   if (key === 'streams')  { renderHomeStreams(); initLiveNow(); }
   // Any time schedule changes, refresh Home Schedule + DJ Family pane
   if (key === 'schedule') { renderHomeSchedule(); renderHomeDJFamily(); }
+  // Any time podcasts change, refresh Podcast public page
+  if (key === 'podcasts') { renderPodcastPage(); }
   // Any time settings change, sync the Email Us pane on home page
   if (key === 'settings') { syncEmailUs(); }
   // Any time inbox changes, update nav badge
@@ -173,6 +176,12 @@ window.addEventListener('storage', function(e) {
       State.schedule = JSON.parse(e.newValue);
       renderHomeSchedule();
       renderHomeDJFamily();
+    } catch(err) { /* ignore */ }
+  }
+  if (e.key === 'ofure_podcasts' && e.newValue) {
+    try {
+      State.podcasts = JSON.parse(e.newValue);
+      renderPodcastPage();
     } catch(err) { /* ignore */ }
   }
   if (e.key === 'ofure_settings' && e.newValue) {
@@ -400,7 +409,7 @@ function switchLiveStream(url, name, genre) {
 function $(id)    { return document.getElementById(id); }
 function $$(sel)  { return document.querySelectorAll(sel); }
 
-function showToast(message, type = 'success') {
+function showToast(message, type = 'success', duration = 3800) {
   let toast = $('globalToast');
   if (!toast) {
     toast = document.createElement('div');
@@ -424,7 +433,7 @@ function showToast(message, type = 'success') {
   toast._timer = setTimeout(() => {
     toast.style.transform = 'translateY(20px)';
     toast.style.opacity   = '0';
-  }, 3800);
+  }, duration);
 }
 
 function openModal(id) {
@@ -463,7 +472,7 @@ document.addEventListener('keydown', e => {
 
 // Backdrop click = close modal
 document.addEventListener('mousedown', e => {
-  const modals = ['editModal','addStreamModal','scheduleModal','editPodcastModal','songRequestModal'];
+  const modals = ['editModal','addStreamModal','scheduleModal','editPodcastModal','songRequestModal','podcastGeneratorModal','inboxReplyModal'];
   modals.forEach(id => {
     const m = $(id);
     if (m && !m.classList.contains('hidden') && e.target === m) closeModal(id);
@@ -565,6 +574,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Hydrate Show Schedule + DJ Family from State
   renderHomeSchedule();
   renderHomeDJFamily();
+  // Hydrate public Podcast page from State
+  renderPodcastPage();
   // Render inbox if on admin page
   renderInbox();
   _updateInboxBadge();
@@ -1600,30 +1611,56 @@ function renderPodcasts() {
     list.innerHTML = `<div class="text-center py-12 text-neutral-500 px-4">
       <i class="fas fa-microphone text-5xl mb-3 text-neutral-700 block"></i>
       <p class="font-medium">No episodes yet</p>
-      <p class="text-xs mt-1 text-neutral-600">Start recording or upload an audio file above</p>
+      <p class="text-xs mt-1 text-neutral-600">Start recording, upload audio, or use the Episode Generator above</p>
     </div>`;
     return;
   }
 
-  list.innerHTML = State.podcasts.map(p => `
-    <div class="flex items-center gap-4 p-4 bg-white/5 hover:bg-white/8 border-b border-white/5 last:border-0 transition-colors">
-      <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-        <i class="fas fa-podcast text-orange-400 text-lg"></i>
+  list.innerHTML = State.podcasts.map(p => {
+    const isPublished = p.published !== false;
+    const isGenerated = p.type === 'generated';
+    const epLabel = p.season && p.episode ? `S${p.season} E${p.episode}` : (p.episode ? `EP ${p.episode}` : '');
+    const dateStr = p.date ? new Date(p.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : (p.date||'');
+    return `
+    <div class="flex items-start gap-4 p-4 hover:bg-white/3 border-b border-white/5 last:border-0 transition-colors">
+      <div class="w-12 h-12 rounded-xl ${isGenerated ? 'bg-yellow-500/20' : 'bg-orange-500/20'} flex items-center justify-center flex-shrink-0 mt-0.5">
+        <i class="fas fa-${isGenerated ? 'magic' : 'podcast'} ${isGenerated ? 'text-yellow-400' : 'text-orange-400'} text-lg"></i>
       </div>
       <div class="flex-1 min-w-0">
-        <p class="text-white font-semibold text-sm truncate">${_escHtml(p.title)}</p>
-        <p class="text-neutral-400 text-xs mt-0.5">
-          ${p.duration || 'Unknown duration'} · ${p.date}
-          ${p.season ? `<span class="ml-2 text-neutral-600">S${p.season}${p.episode?` E${p.episode}`:''}</span>` : ''}
+        <div class="flex items-center gap-2 flex-wrap mb-0.5">
+          <p class="text-white font-semibold text-sm truncate">${_escHtml(p.title)}</p>
+          ${isGenerated ? '<span class="text-xs px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 font-semibold flex-shrink-0">AI Generated</span>' : ''}
+          ${epLabel ? `<span class="text-xs px-1.5 py-0.5 rounded bg-white/10 text-neutral-400 flex-shrink-0">${epLabel}</span>` : ''}
+        </div>
+        <p class="text-neutral-400 text-xs">
+          ${p.duration ? p.duration + ' · ' : ''}${dateStr}${p.host ? ' · ' + _escHtml(p.host) : ''}
         </p>
-        ${p.desc ? `<p class="text-neutral-600 text-xs mt-0.5 truncate">${_escHtml(p.desc)}</p>` : ''}
+        ${p.desc ? `<p class="text-neutral-600 text-xs mt-0.5 line-clamp-1">${_escHtml(p.desc)}</p>` : ''}
       </div>
-      <div class="flex gap-2 flex-shrink-0">
-        <button onclick="playPodcast('${p.id}')" class="text-green-400 hover:text-green-300 p-2 rounded-lg hover:bg-green-500/10 transition-colors" title="Play"><i class="fas fa-play text-sm"></i></button>
-        <button onclick="editPodcast('${p.id}')" class="text-orange-400 hover:text-orange-300 p-2 rounded-lg hover:bg-orange-500/10 transition-colors" title="Edit episode"><i class="fas fa-edit text-sm"></i></button>
-        <button onclick="deletePodcast('${p.id}')" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition-colors" title="Delete"><i class="fas fa-trash text-sm"></i></button>
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <!-- Publish toggle -->
+        <button onclick="togglePodcastPublish('${p.id}')"
+          title="${isPublished ? 'Unpublish from Podcast page' : 'Publish to Podcast page'}"
+          class="flex items-center gap-1 text-xs px-2 py-1.5 rounded-lg font-semibold transition-colors ${isPublished ? 'bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30' : 'bg-white/5 text-neutral-500 border border-white/10 hover:bg-green-500/20 hover:text-green-400 hover:border-green-500/30'}">
+          <i class="fas fa-${isPublished ? 'eye' : 'eye-slash'} text-xs"></i>
+          <span class="hidden sm:inline">${isPublished ? 'Live' : 'Draft'}</span>
+        </button>
+        ${!p.url ? `<button onclick="playPodcast('${p.id}')" class="text-neutral-600 p-1.5 rounded-lg cursor-not-allowed" title="No audio yet"><i class="fas fa-play text-xs"></i></button>` : `<button onclick="playPodcast('${p.id}')" class="text-green-400 hover:text-green-300 p-1.5 rounded-lg hover:bg-green-500/10 transition-colors" title="Play"><i class="fas fa-play text-xs"></i></button>`}
+        <button onclick="editPodcast('${p.id}')" class="text-orange-400 hover:text-orange-300 p-1.5 rounded-lg hover:bg-orange-500/10 transition-colors" title="Edit episode"><i class="fas fa-edit text-xs"></i></button>
+        <button onclick="deletePodcast('${p.id}')" class="text-red-400 hover:text-red-300 p-1.5 rounded-lg hover:bg-red-500/10 transition-colors" title="Delete"><i class="fas fa-trash text-xs"></i></button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+
+function togglePodcastPublish(id) {
+  const p = State.podcasts.find(x => x.id === id);
+  if (!p) return;
+  p.published = p.published === false ? true : false;
+  saveState('podcasts');
+  renderPodcasts();
+  renderPodcastPage();
+  showToast(p.published ? 'Episode published to Podcast page! 🎉' : 'Episode set to draft.', p.published ? 'success' : 'info');
 }
 
 function startRecording() {
@@ -1817,7 +1854,8 @@ function aiGeneratePodcast() {
     input.value = 'Create a detailed 20-minute podcast episode outline about the rise of Afrobeats globally, including segment titles, talking points, and recommended guest topics.';
     input.focus();
   }
-  showToast('AI Podcast outline generator ready — click Send!', 'info');
+  // Show a guiding toast with workflow steps
+  showToast('📋 Step 1: Send the prompt below. Step 2: Click "Use in Podcast Generator" in the reply. Step 3: Fill details & publish!', 'info', 6000);
 }
 
 // ─── RSS FEED ──────────────────────────────────────────
@@ -1995,13 +2033,26 @@ function sendAIMessage() {
   const delay = 800 + Math.random() * 700;
   setTimeout(() => {
     const reply = agent.handler(msg);
+    // Store for auto-fill in Podcast Generator
+    State.lastAIReply = reply;
+    // "Use in Generator" button for podcast agent replies
+    const isPodcastAgent = State.currentAIAgent === 'podcast';
+    const useInGenBtn = isPodcastAgent
+      ? `<div class="mt-3 pt-2 border-t border-white/10 flex flex-wrap gap-2">
+          <button onclick="_importOutlineToGenerator()" class="flex items-center gap-1.5 text-xs bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 border border-yellow-500/30 rounded-lg px-3 py-1.5 transition-colors font-semibold">
+            <i class="fas fa-magic"></i> Use in Podcast Generator
+          </button>
+          <button onclick="showPanel('podcast')" class="flex items-center gap-1.5 text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 rounded-lg px-3 py-1.5 transition-colors font-semibold">
+            <i class="fas fa-microphone"></i> Go to Studio
+          </button>
+        </div>` : '';
     const t = $(typingId);
     if (t) t.outerHTML = `
       <div class="flex gap-3">
         <div class="w-8 h-8 rounded-full bg-${agent.color}-500/20 flex items-center justify-center flex-shrink-0">
           <i class="fas fa-${agent.icon} text-${agent.color}-400 text-sm"></i>
         </div>
-        <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-neutral-200 text-sm max-w-lg leading-relaxed">${reply}</div>
+        <div class="bg-white/5 border border-white/5 rounded-xl px-4 py-3 text-neutral-200 text-sm max-w-lg leading-relaxed">${reply}${useInGenBtn}</div>
       </div>`;
     messages.scrollTop = messages.scrollHeight;
     if (sendBtn) {
@@ -2278,6 +2329,392 @@ function _aiPodcastReply(msg) {
 
 function showAIFeature(type) {
   activateAIAgent(type);
+}
+
+// ─── PODCAST GENERATOR ────────────────────────────────────────────────────────
+// Opens the Podcast Generator modal in Admin Podcast Studio
+function openPodcastGenerator() {
+  // Pre-fill episode number from current episode count
+  const epNum = $('genEpNumber');
+  if (epNum && !epNum.value) epNum.value = (State.podcasts.length + 1).toString();
+  // Pre-fill season
+  const season = $('genEpSeason');
+  if (season && !season.value) season.value = '1';
+  openModal('podcastGeneratorModal');
+}
+
+// ─ Import last Podcast AI outline directly into the generator (via chat button)
+function _importOutlineToGenerator() {
+  if (!State.lastAIReply) { showToast('No AI reply found. Generate a podcast outline in AI Studio first.', 'warning'); return; }
+  const tmp = document.createElement('div');
+  tmp.innerHTML = State.lastAIReply;
+  const plain = (tmp.innerText || tmp.textContent || '').trim();
+  _parseAndPrefillGenerator(plain);
+  showPanel('podcast');
+  setTimeout(() => openPodcastGenerator(), 250);
+  showToast('Outline imported into Podcast Generator! 🎉', 'success');
+}
+
+// Parse an AI outline text and pre-fill generator fields intelligently
+function _parseAndPrefillGenerator(text) {
+  if (!text) return;
+  const outline = $('genEpOutline');
+  if (outline) outline.value = text;
+
+  // Try to extract a title from quoted/bold patterns
+  const titleEl = $('genEpTitle');
+  if (titleEl && !titleEl.value) {
+    const m =
+      text.match(/[“”"]([^“”"]{10,80})[“”"]/) ||
+      text.match(/Episode[:\s]+"?([^
+"]{10,80})"?/i) ||
+      text.match(/Outline[:\s]+"?([^
+"]{10,80})"?/i);
+    if (m) titleEl.value = m[1].trim().replace(/^[\*\#\>\-\:]+\s*/, '');
+  }
+
+  // Try to extract runtime/duration
+  const durEl = $('genEpDuration');
+  if (durEl && !durEl.value) {
+    const d = text.match(/(\d+)[\-\s]*(?:minute|min)/i);
+    if (d) durEl.value = d[1] + ' min';
+  }
+
+  // Auto-select category based on keywords
+  const lower = text.toLowerCase();
+  const catEl = $('genEpCategory');
+  if (catEl) {
+    if (lower.includes('gospel') || lower.includes('worship') || lower.includes('faith')) catEl.value = 'Gospel';
+    else if (lower.includes('interview') || lower.includes('guest')) catEl.value = 'Interview';
+    else if (lower.includes('culture') || lower.includes('african') || lower.includes('heritage')) catEl.value = 'Culture';
+    else if (lower.includes('news') || lower.includes('current affairs')) catEl.value = 'News';
+    else if (lower.includes('music') || lower.includes('afrobeats') || lower.includes('highlife')) catEl.value = 'Music';
+  }
+
+  // Auto-fill tags from keywords
+  const tagsEl = $('genEpTags');
+  if (tagsEl && !tagsEl.value) {
+    const tagMap = {
+      afrobeats:'afrobeats', gospel:'gospel', highlife:'highlife', culture:'culture',
+      music:'music', interview:'interview', africa:'africa', entertainment:'entertainment',
+      nollywood:'nollywood', amapiano:'amapiano'
+    };
+    const kwds = Object.keys(tagMap).filter(k => lower.includes(k)).map(k => tagMap[k]);
+    if (kwds.length) tagsEl.value = kwds.slice(0,4).join(', ');
+  }
+}
+
+// Auto-fill the outline textarea from the last AI message in the chat
+function autoFillFromAI() {
+  if (State.lastAIReply) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = State.lastAIReply;
+    const plain = (tmp.innerText || tmp.textContent || '').trim();
+    _parseAndPrefillGenerator(plain);
+    showToast('Outline auto-filled from last AI reply! ✅', 'success');
+    return;
+  }
+  // Fallback: scrape from DOM
+  const messages = $('aiMessages');
+  if (!messages) { showToast('Go to AI Studio → Podcast AI, generate an outline first.', 'info'); return; }
+  const bubbles = messages.querySelectorAll('.bg-white\/5');
+  if (!bubbles || bubbles.length === 0) { showToast('No AI messages found. Generate an outline in AI Studio → Podcast AI first.', 'warning'); return; }
+  const lastBubble = bubbles[bubbles.length - 1];
+  const raw = (lastBubble.innerText || lastBubble.textContent || '').trim();
+  _parseAndPrefillGenerator(raw);
+  showToast('Outline filled from last AI message! ✅', 'success');
+}
+
+// Generate the episode and save it to State.podcasts
+function generateAndSavePodcastEpisode() {
+  const title    = ($('genEpTitle')?.value   || '').trim();
+  const num      = parseInt($('genEpNumber')?.value)  || (State.podcasts.length + 1);
+  const season   = parseInt($('genEpSeason')?.value)  || 1;
+  const host     = ($('genEpHost')?.value     || '').trim() || (State.settings?.stationName || 'OFURE RADIO');
+  const duration = ($('genEpDuration')?.value || '').trim();
+  const category = $('genEpCategory')?.value || 'Music';
+  const tags     = ($('genEpTags')?.value     || '').split(',').map(t => t.trim()).filter(Boolean);
+  const desc     = ($('genEpDesc')?.value     || '').trim();
+  const outline  = ($('genEpOutline')?.value  || '').trim();
+  const publish  = $('genEpPublish')?.checked !== false;
+
+  if (!title) { showToast('Episode title is required.', 'error'); $('genEpTitle')?.focus(); return; }
+
+  const btn = document.querySelector('#podcastGeneratorModal button[onclick="generateAndSavePodcastEpisode()"]');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Generating...'; }
+
+  setTimeout(() => {
+    const episodeId = 'gen_' + Date.now();
+    const pod = {
+      id:         episodeId,
+      title:      title,
+      episode:    num,
+      season:     season,
+      host:       host,
+      duration:   duration,
+      category:   category,
+      tags:       tags,
+      desc:       desc,
+      outline:    outline,
+      published:  publish,
+      url:        '',
+      type:       'generated',
+      date:       new Date().toISOString(),
+      size:       0
+    };
+
+    State.podcasts.unshift(pod);
+    saveState('podcasts');
+    renderPodcasts();
+    renderPodcastPage(); // refresh podcast page if open
+
+    closeModal('podcastGeneratorModal');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-magic"></i> Generate & Save Episode'; }
+
+    // Clear form
+    ['genEpTitle','genEpNumber','genEpHost','genEpDuration','genEpTags','genEpDesc','genEpOutline'].forEach(id => {
+      const el = $(id); if (el) el.value = '';
+    });
+    const cat = $('genEpCategory'); if (cat) cat.value = 'Music';
+    const pub = $('genEpPublish');  if (pub) pub.checked = true;
+
+    showToast(publish ? 'Episode generated & published to Podcast page! 🎉' : 'Episode saved as draft. ✅', 'success');
+  }, 1200);
+}
+
+// ─── PODCAST PAGE (public /podcast route) ─────────────────────────────────────
+// Renders episode cards into #podcastPageGrid (on /podcast page)
+function renderPodcastPage() {
+  const grid  = document.getElementById('podcastPageGrid');
+  const empty = document.getElementById('podcastPageEmpty');
+  const stat  = document.getElementById('podcastStatEpisodes');
+  if (!grid) return; // not on podcast page
+
+  // Only show published episodes
+  const episodes = State.podcasts.filter(p => p.published !== false);
+
+  if (stat) stat.textContent = episodes.length;
+
+  if (episodes.length === 0) {
+    grid.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    // Remove skeleton loaders
+    grid.querySelectorAll('.podcast-skeleton').forEach(el => el.remove());
+    return;
+  }
+
+  if (empty) empty.classList.add('hidden');
+
+  const _CATEGORY_COLORS = {
+    Music:         'orange', Culture:     'purple', Interview:  'blue',
+    Entertainment: 'pink',   Gospel:      'yellow', Talk:       'green',
+    News:          'red',    default:     'neutral'
+  };
+  const _CATEGORY_ICONS = {
+    Music:         'music',  Culture:     'globe',  Interview:  'microphone',
+    Entertainment: 'star',   Gospel:      'church', Talk:       'comments',
+    News:          'newspaper', default:  'podcast'
+  };
+
+  grid.innerHTML = episodes.map(ep => {
+    const color = _CATEGORY_COLORS[ep.category] || 'orange';
+    const icon  = _CATEGORY_ICONS[ep.category]  || 'podcast';
+    const epLabel = ep.season && ep.episode ? `S${ep.season} E${ep.episode}` : (ep.episode ? `EP ${ep.episode}` : '');
+    const dateStr = ep.date ? new Date(ep.date).toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'}) : '';
+    const tagsHtml = (ep.tags||[]).slice(0,3).map(t =>
+      `<span class="text-xs px-2 py-0.5 rounded-full bg-white/5 text-neutral-500 border border-white/10">${_escHtml(t)}</span>`
+    ).join('');
+
+    return `
+    <div class="bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:border-orange-500/30 transition-all duration-300 group podcast-card" data-tags="${_escHtml((ep.tags||[]).join(' ').toLowerCase())} ${(ep.category||'').toLowerCase()}">
+      <!-- Thumbnail / cover -->
+      <div class="h-44 bg-gradient-to-br from-${color}-500/20 to-purple-600/20 flex items-center justify-center relative overflow-hidden">
+        <div class="w-20 h-20 rounded-full bg-${color}-500/20 flex items-center justify-center">
+          <i class="fas fa-${icon} text-${color}-400 text-3xl"></i>
+        </div>
+        ${ep.url ? `
+        <button onclick="playEpisodeOnPage('${ep.id}')"
+          class="absolute inset-0 flex items-center justify-center bg-black/0 hover:bg-black/40 transition-all opacity-0 group-hover:opacity-100">
+          <div class="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center shadow-2xl scale-75 group-hover:scale-100 transition-transform">
+            <i class="fas fa-play text-white text-xl ml-1"></i>
+          </div>
+        </button>` : ''}
+        <div class="absolute top-3 left-3 flex items-center gap-2">
+          ${epLabel ? `<span class="text-xs font-bold px-2 py-1 rounded-full bg-black/50 text-white backdrop-blur-sm">${epLabel}</span>` : ''}
+          <span class="text-xs font-bold px-2 py-1 rounded-full bg-${color}-500/30 text-${color}-300 border border-${color}-500/30">${_escHtml(ep.category||'Music')}</span>
+        </div>
+        ${ep.duration ? `<div class="absolute bottom-3 right-3 text-xs font-bold px-2 py-1 rounded-full bg-black/50 text-white backdrop-blur-sm"><i class="fas fa-clock mr-1"></i>${_escHtml(ep.duration)}</div>` : ''}
+      </div>
+      <!-- Content -->
+      <div class="p-5">
+        <h3 class="text-white font-bold text-base mb-2 group-hover:text-orange-400 transition-colors line-clamp-2">${_escHtml(ep.title)}</h3>
+        ${ep.host ? `<div class="flex items-center gap-1.5 text-neutral-500 text-xs mb-2"><i class="fas fa-user-circle"></i>${_escHtml(ep.host)}</div>` : ''}
+        ${ep.desc ? `<p class="text-neutral-400 text-sm mb-3 line-clamp-3 leading-relaxed">${_escHtml(ep.desc)}</p>` : ''}
+        ${tagsHtml ? `<div class="flex flex-wrap gap-1 mb-3">${tagsHtml}</div>` : ''}
+        ${ep.outline ? `
+        <details class="mb-3">
+          <summary class="text-xs text-yellow-400 cursor-pointer hover:text-yellow-300 transition-colors font-semibold flex items-center gap-1">
+            <i class="fas fa-list text-xs"></i> View Episode Outline
+          </summary>
+          <div class="mt-2 bg-white/5 rounded-lg p-3 text-xs text-neutral-400 font-mono whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto">${_escHtml(ep.outline)}</div>
+        </details>` : ''}
+        <div class="flex items-center justify-between pt-2 border-t border-white/5">
+          <span class="text-neutral-600 text-xs">${dateStr}</span>
+          <div class="flex gap-2">
+            ${ep.url
+              ? `<button onclick="playEpisodeOnPage('${ep.id}')" class="flex items-center gap-1.5 bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors"><i class="fas fa-play"></i>Play</button>`
+              : `<button onclick="viewEpisodeDetail('${ep.id}')" class="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-neutral-400 hover:text-white px-4 py-2 rounded-xl text-xs font-semibold transition-colors"><i class="fas fa-file-alt"></i>Details</button>`
+            }
+            ${ep.outline ? `<button onclick="viewEpisodeDetail('${ep.id}')" class="w-8 h-8 flex items-center justify-center bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 rounded-xl transition-colors" title="View outline"><i class="fas fa-list text-xs"></i></button>` : ''}
+            <button onclick="shareEpisode('${ep.id}')" class="w-8 h-8 flex items-center justify-center bg-white/10 hover:bg-white/20 text-neutral-400 hover:text-white rounded-xl transition-colors" title="Share episode">
+              <i class="fas fa-share-alt text-xs"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Remove skeleton loaders now that real content is loaded
+  grid.querySelectorAll('.podcast-skeleton').forEach(el => el.remove());
+}
+
+function filterPodcastPage(tag) {
+  const cards = document.querySelectorAll('.podcast-card');
+  const lower = tag.toLowerCase();
+  let shown = 0;
+  cards.forEach(card => {
+    const tags = card.dataset.tags || '';
+    const match = lower === 'all' || tags.includes(lower);
+    card.style.display = match ? '' : 'none';
+    if (match) shown++;
+  });
+  // Update filter button states
+  document.querySelectorAll('.podcast-filter-btn').forEach(btn => {
+    btn.className = 'podcast-filter-btn px-4 py-2 rounded-full text-sm font-semibold bg-white/5 text-neutral-400 border border-white/10 hover:text-white transition-colors';
+  });
+  const activeBtn = document.getElementById('podFilter' + tag.charAt(0).toUpperCase() + tag.slice(1));
+  if (activeBtn) activeBtn.className = 'podcast-filter-btn px-4 py-2 rounded-full text-sm font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 transition-colors';
+  const empty = document.getElementById('podcastPageEmpty');
+  if (empty) empty.classList.toggle('hidden', shown > 0);
+}
+
+function playEpisodeOnPage(id) {
+  const ep = State.podcasts.find(p => p.id === id);
+  if (!ep || !ep.url) { showToast('No audio file for this episode yet.', 'warning'); return; }
+  const player = $('radioPlayer');
+  if (!player) return;
+  try { player.pause(); } catch(e) {}
+  player.src = '';
+  player.load();
+  player.src = ep.url;
+  player.play()
+    .then(() => showToast('▶ Playing: ' + ep.title, 'success'))
+    .catch(() => showToast('Could not play this episode. The audio file may have expired.', 'error'));
+}
+
+function viewEpisodeDetail(id) {
+  const ep = State.podcasts.find(p => p.id === id);
+  if (!ep) return;
+  const _CATEGORY_COLORS2 = {
+    Music:'orange', Culture:'purple', Interview:'blue', Entertainment:'pink',
+    Gospel:'yellow', Talk:'green', News:'red', default:'neutral'
+  };
+  const _CATEGORY_ICONS2 = {
+    Music:'music', Culture:'globe', Interview:'microphone', Entertainment:'star',
+    Gospel:'church', Talk:'comments', News:'newspaper', default:'podcast'
+  };
+  const color = _CATEGORY_COLORS2[ep.category] || 'orange';
+  const icon  = _CATEGORY_ICONS2[ep.category]  || 'podcast';
+  const epLabel = ep.season && ep.episode ? `S${ep.season} E${ep.episode}` : (ep.episode ? `EP ${ep.episode}` : '');
+  const dateStr = ep.date ? new Date(ep.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+
+  // Build or reuse the detail modal
+  let modal = document.getElementById('episodeDetailModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'episodeDetailModal';
+    modal.className = 'fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-start justify-center p-4 overflow-y-auto';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML = `
+    <div class="bg-neutral-900 border border-white/10 rounded-2xl w-full max-w-2xl my-8">
+      <!-- Header cover -->
+      <div class="h-40 bg-gradient-to-br from-${color}-500/30 to-purple-600/20 flex items-center justify-center relative rounded-t-2xl overflow-hidden">
+        <div class="w-20 h-20 rounded-full bg-${color}-500/20 flex items-center justify-center">
+          <i class="fas fa-${icon} text-${color}-400 text-4xl"></i>
+        </div>
+        <button onclick="document.getElementById('episodeDetailModal').classList.add('hidden')"
+          class="absolute top-3 right-3 w-8 h-8 bg-black/50 hover:bg-black/70 text-white rounded-full flex items-center justify-center transition-colors">
+          <i class="fas fa-times text-sm"></i>
+        </button>
+        <div class="absolute top-3 left-3 flex items-center gap-2">
+          ${epLabel ? `<span class="text-xs font-bold px-2 py-1 rounded-full bg-black/50 text-white">${epLabel}</span>` : ''}
+          <span class="text-xs font-bold px-2 py-1 rounded-full bg-${color}-500/30 text-${color}-300 border border-${color}-500/30">${_escHtml(ep.category||'Music')}</span>
+        </div>
+        ${ep.duration ? `<div class="absolute bottom-3 right-3 text-xs font-bold px-2 py-1 rounded-full bg-black/50 text-white"><i class="fas fa-clock mr-1"></i>${_escHtml(ep.duration)}</div>` : ''}
+      </div>
+      <!-- Body -->
+      <div class="p-6">
+        <h2 class="text-white font-black text-xl mb-2">${_escHtml(ep.title)}</h2>
+        <div class="flex flex-wrap gap-3 text-xs text-neutral-500 mb-4">
+          ${ep.host ? `<span><i class="fas fa-user-circle mr-1"></i>${_escHtml(ep.host)}</span>` : ''}
+          ${dateStr ? `<span><i class="fas fa-calendar mr-1"></i>${dateStr}</span>` : ''}
+          <span class="capitalize"><i class="fas fa-tag mr-1"></i>${_escHtml(ep.category||'Music')}</span>
+        </div>
+        ${ep.desc ? `<p class="text-neutral-300 text-sm leading-relaxed mb-4">${_escHtml(ep.desc)}</p>` : ''}
+        ${(ep.tags||[]).length > 0 ? `
+        <div class="flex flex-wrap gap-2 mb-4">
+          ${(ep.tags).map(t=>`<span class="text-xs px-2 py-0.5 rounded-full bg-white/5 text-neutral-400 border border-white/10">${_escHtml(t)}</span>`).join('')}
+        </div>` : ''}
+        ${ep.outline ? `
+        <div class="mb-4">
+          <p class="text-yellow-400 font-semibold text-sm mb-2 flex items-center gap-1"><i class="fas fa-list"></i> Episode Outline / Script</p>
+          <div class="bg-white/5 border border-white/10 rounded-xl p-4 text-xs text-neutral-400 font-mono whitespace-pre-wrap leading-relaxed max-h-64 overflow-y-auto">${_escHtml(ep.outline)}</div>
+        </div>` : ''}
+        <div class="flex gap-3 pt-2">
+          ${ep.url
+            ? `<button onclick="playEpisodeOnPage('${ep.id}'); document.getElementById('episodeDetailModal').classList.add('hidden')"
+                class="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white py-2.5 rounded-xl font-bold text-sm transition-colors">
+                <i class="fas fa-play"></i> Play Episode
+               </button>`
+            : `<div class="flex-1 flex items-center justify-center gap-2 bg-white/5 text-neutral-500 py-2.5 rounded-xl text-sm">
+                <i class="fas fa-microphone-slash"></i> Audio coming soon
+               </div>`}
+          <button onclick="shareEpisode('${ep.id}')"
+            class="w-11 h-11 flex items-center justify-center bg-white/10 hover:bg-white/20 text-neutral-400 hover:text-white rounded-xl transition-colors" title="Share">
+            <i class="fas fa-share-alt"></i>
+          </button>
+          <button onclick="document.getElementById('episodeDetailModal').classList.add('hidden')"
+            class="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl font-semibold text-sm transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>`;
+  modal.classList.remove('hidden');
+  modal.onclick = function(e) { if (e.target === modal) modal.classList.add('hidden'); };
+}
+
+function shareEpisode(id) {
+  const ep = State.podcasts.find(p => p.id === id);
+  if (!ep) return;
+  const text = 'Listen to "' + ep.title + '" on OFURE RADIO Podcast! ' + location.origin + '/podcast';
+  if (navigator.share) {
+    navigator.share({ title: ep.title, text: text, url: location.origin + '/podcast' })
+      .catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text)
+      .then(() => showToast('Episode link copied to clipboard! 📋', 'success'))
+      .catch(() => showToast('Share: ' + location.origin + '/podcast', 'info'));
+  }
+}
+
+function copyPodcastRSS() {
+  const url = location.origin + '/rss.xml';
+  navigator.clipboard.writeText(url)
+    .then(() => showToast('RSS URL copied! 📋', 'success'))
+    .catch(() => showToast('RSS: ' + url, 'info'));
 }
 
 // ─── SECURITY / PIN ────────────────────────────────────

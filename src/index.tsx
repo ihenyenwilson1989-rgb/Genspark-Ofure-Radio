@@ -4,6 +4,7 @@ import { homePage } from './routes/home'
 import { blogPage, blogArticlePage } from './routes/blog'
 import { adminPage } from './routes/admin'
 import { streamsPage } from './routes/streams'
+import { podcastPage } from './routes/podcast'
 import { layout } from './layout'
 import { getNewsArticles, getArticlesByCategory, getArticleBySlug, newsCategories } from './data/news'
 
@@ -52,6 +53,11 @@ app.get('/blog/:slug', (c) => {
 // Streams page (redirect to home #streams)
 app.get('/streams', (c) => {
   return c.redirect('/#streams')
+})
+
+// Podcast page
+app.get('/podcast', (c) => {
+  return c.html(layout(podcastPage(), 'Podcasts | OFURE RADIO'))
 })
 
 // Admin page

@@ -41,6 +41,9 @@ export function homePage(): string {
           <a href="#schedule" class="text-neutral-300 hover:text-orange-400 transition-colors text-sm font-medium">Schedule</a>
           <a href="#streams" class="text-neutral-300 hover:text-orange-400 transition-colors text-sm font-medium">Listen Live</a>
           <a href="/blog" class="text-neutral-300 hover:text-orange-400 transition-colors text-sm font-medium">Blog</a>
+          <a href="/podcast" class="text-neutral-300 hover:text-orange-400 transition-colors text-sm font-medium flex items-center gap-1">
+            <i class="fas fa-podcast text-xs"></i>Podcasts
+          </a>
           <a href="#contact" class="text-neutral-300 hover:text-orange-400 transition-colors text-sm font-medium">Contact</a>
           <a href="/admin" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-full text-sm font-semibold transition-colors">
             <i class="fas fa-cog mr-1"></i> Admin
@@ -62,6 +65,7 @@ export function homePage(): string {
         <a href="#schedule" class="block text-neutral-300 text-sm font-medium py-2 mobile-menu-close">Schedule</a>
         <a href="#streams" class="block text-neutral-300 text-sm font-medium py-2 mobile-menu-close">Listen Live</a>
         <a href="/blog" class="block text-neutral-300 text-sm font-medium py-2">Blog & News</a>
+        <a href="/podcast" class="block text-neutral-300 text-sm font-medium py-2"><i class="fas fa-podcast mr-1 text-orange-400"></i>Podcasts</a>
         <a href="#contact" class="block text-neutral-300 text-sm font-medium py-2 mobile-menu-close">Contact</a>
         <a href="/admin" class="block bg-orange-500 text-white text-sm font-semibold py-2 px-4 rounded-full text-center mt-2">Admin Studio</a>
       </div>
