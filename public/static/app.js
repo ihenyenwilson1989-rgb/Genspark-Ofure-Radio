@@ -2361,16 +2361,22 @@ function _parseAndPrefillGenerator(text) {
   const outline = $('genEpOutline');
   if (outline) outline.value = text;
 
-  // Try to extract a title from quoted/bold patterns
+  // Try to extract a title from quoted or bold patterns (safe regexes, no embedded newlines)
   const titleEl = $('genEpTitle');
   if (titleEl && !titleEl.value) {
-    const m =
-      text.match(/[“”"]([^“”"]{10,80})[“”"]/) ||
-      text.match(/Episode[:\s]+"?([^
-"]{10,80})"?/i) ||
-      text.match(/Outline[:\s]+"?([^
-"]{10,80})"?/i);
-    if (m) titleEl.value = m[1].trim().replace(/^[\*\#\>\-\:]+\s*/, '');
+    const lines = text.split('\n');
+    let found = '';
+    for (const line of lines) {
+      // Match "Episode Title" or Episode: "Title" patterns
+      const m1 = line.match(/Episode[:\s]+"?([^"]{10,80})"?/i);
+      const m2 = line.match(/Outline[:\s]+"?([^"]{10,80})"?/i);
+      // Match text inside curly/smart quotes
+      const m3 = line.match(/[\u201c\u201d"]([^\u201c\u201d"]{10,80})[\u201c\u201d"]/);
+      if (m1) { found = m1[1]; break; }
+      if (m2) { found = m2[1]; break; }
+      if (m3) { found = m3[1]; break; }
+    }
+    if (found) titleEl.value = found.trim().replace(/^[*#>\-:]+\s*/, '');
   }
 
   // Try to extract runtime/duration
@@ -2395,15 +2401,14 @@ function _parseAndPrefillGenerator(text) {
   const tagsEl = $('genEpTags');
   if (tagsEl && !tagsEl.value) {
     const tagMap = {
-      afrobeats:'afrobeats', gospel:'gospel', highlife:'highlife', culture:'culture',
-      music:'music', interview:'interview', africa:'africa', entertainment:'entertainment',
-      nollywood:'nollywood', amapiano:'amapiano'
+      afrobeats: 'afrobeats', gospel: 'gospel', highlife: 'highlife', culture: 'culture',
+      music: 'music', interview: 'interview', africa: 'africa', entertainment: 'entertainment',
+      nollywood: 'nollywood', amapiano: 'amapiano'
     };
     const kwds = Object.keys(tagMap).filter(k => lower.includes(k)).map(k => tagMap[k]);
-    if (kwds.length) tagsEl.value = kwds.slice(0,4).join(', ');
+    if (kwds.length) tagsEl.value = kwds.slice(0, 4).join(', ');
   }
 }
-
 // Auto-fill the outline textarea from the last AI message in the chat
 function autoFillFromAI() {
   if (State.lastAIReply) {
